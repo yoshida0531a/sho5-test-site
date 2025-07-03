@@ -3,15 +3,5 @@
     "api/**/*.js": {
       "runtime": "nodejs18.x"
     }
-  },
-  "env": {
-    "STRIPE_PUBLISHABLE_KEY": "@stripe_publishable_key",
-    "STRIPE_SECRET_KEY": "@stripe_secret_key",
-    "STRIPE_WEBHOOK_SECRET": "@stripe_webhook_secret",
-    "RESEND_API_KEY": "@resend_api_key",
-    "FROM_EMAIL": "@from_email",
-    "GITHUB_TOKEN": "@github_token",
-    "GITHUB_REPO_OWNER": "@github_repo_owner",
-    "GITHUB_REPO_NAME": "@github_repo_name"
   }
 }
