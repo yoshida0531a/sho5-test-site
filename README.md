@@ -1,73 +1,34 @@
-# Sho5 Membership Site
+# Sho5 Test Site
 
-A membership-based photo gallery site with Stripe integration and magic link authentication.
+Simple membership site with GitHub Pages and Cloudflare Workers.
+
+## Structure
+
+- **GitHub Pages**: Static site hosting
+- **Cloudflare Workers**: Stripe webhook handler  
+- **GitHub Actions**: Automated member management
+- **Gmail**: Magic link email delivery
 
 ## Features
 
-- Clean white/black design matching main site
-- Stripe subscription payments (¥500/month)
-- Magic link authentication for gallery access
-- Email-only member management (privacy-focused)
-- GitHub-based member list storage
-- Vercel deployment for mobile/tablet testing
+- Clean white/black design matching sho5.org
+- ¥500/month membership via Stripe Payment Links
+- Magic link authentication
+- Mobile-optimized (iPhone/iPad tested)
 
-## Setup
+## Deployment
 
-1. **Clone and install dependencies:**
-   ```bash
-   git clone <repository-url>
-   cd sho5-test-site
-   npm install
-   ```
+1. Enable GitHub Pages in repository settings
+2. Deploy Cloudflare Worker with `cloudflare-worker.js`
+3. Set up Stripe webhook pointing to Worker URL
+4. Configure GitHub Secrets for email automation
 
-2. **Environment variables:**
-   Copy `.env.example` to `.env.local` and fill in your API keys:
-   - Stripe keys (test mode)
-   - Resend API key for email sending
-   - GitHub token for member list management
+## Live Site
 
-3. **Deploy to Vercel:**
-   ```bash
-   npx vercel
-   ```
+https://yoshida0531a.github.io/sho5-test-site/
 
-## Architecture
+## Test on Mobile
 
-```
-GitHub (members.json) ← Vercel (webhooks + API) ← Stripe (payments)
-                     ↓
-                  Resend (magic links)
-```
-
-## API Endpoints
-
-- `POST /api/create-checkout-session` - Create Stripe checkout
-- `POST /api/send-magic-link` - Send gallery access link
-- `POST /api/webhook` - Handle Stripe webhooks
-
-## Member Management
-
-Members are stored in `members.json` with email-only data:
-```json
-{
-  "members": [
-    {
-      "email": "user@example.com",
-      "joined": "2025-01-01T00:00:00Z", 
-      "status": "active"
-    }
-  ]
-}
-```
-
-## Testing
-
-- Use Stripe test cards for payment testing
-- Test magic links with any email during development
-- Mobile/tablet testing available via Vercel deployment
-
-## Privacy
-
-- Only email addresses are stored
-- No personal information collected
-- GDPR-compliant approach
+- iPhone: Safari, Chrome
+- iPad: Safari, Chrome
+- All pages responsive and touch-friendly

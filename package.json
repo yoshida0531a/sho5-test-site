@@ -1,23 +1,11 @@
 {
-  "name": "sho5-membership-site",
+  "name": "sho5-membership-test",
   "version": "1.0.0",
-  "description": "Shogo Fun Site with membership system",
-  "main": "index.html",
+  "description": "Static membership site with GitHub Pages",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'Static files ready'",
-    "start": "vercel dev"
+    "serve": "python3 -m http.server 8000"
   },
-  "dependencies": {
-    "stripe": "^12.0.0",
-    "resend": "^1.0.0"
-  },
-  "keywords": [
-    "membership",
-    "stripe",
-    "magic-link",
-    "photo-gallery"
-  ],
+  "keywords": ["membership", "github-pages", "static"],
   "author": "Akira Yoshida",
   "license": "MIT"
 }

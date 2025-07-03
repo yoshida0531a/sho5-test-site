@@ -1,27 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shogo Fun Site</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      background-color: white;
-      color: black;
-    }
-
-
-    header {
-      text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-      margin: 20px 0;
-    }
-
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: sans-serif; background: white; color: black; }
+    header { text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }
+    
     .slideshow {
       position: relative;
       width: calc(100% - 20px);
@@ -29,29 +16,19 @@
       margin: 0 auto;
       overflow: hidden;
     }
-
+    
     .slideshow img {
       position: absolute;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      top: 0;
-      left: 0;
       border-radius: 10px;
       opacity: 0;
-      transition: opacity 1s ease-in-out;
+      transition: opacity 1s;
     }
-
-    .slideshow img.active {
-      opacity: 1;
-    }
-
-    @media (min-width: 768px) {
-      .slideshow {
-        height: calc(100vh - 290px);
-      }
-    }
-
+    
+    .slideshow img.active { opacity: 1; }
+    
     .indicators {
       position: absolute;
       bottom: 10px;
@@ -60,7 +37,7 @@
       display: flex;
       gap: 10px;
     }
-
+    
     .indicators button {
       font-size: 20px;
       background: none;
@@ -69,15 +46,14 @@
       cursor: pointer;
       padding: 0;
     }
-
-    .indicators button.active {
-      color: black;
-    }
-
+    
+    .indicators button.active { color: black; }
+    
     .links {
       text-align: center;
       margin: 20px 0;
     }
+    
     .links a {
       display: block;
       color: black;
@@ -88,83 +64,74 @@
       border-radius: 8px;
       transition: all 0.3s;
     }
+    
     .links a:hover {
       text-decoration: underline;
     }
-
-
+    
     footer {
       text-align: center;
       font-size: 12px;
       margin: 20px 0;
     }
-
   </style>
 </head>
 <body>
-
   <header>Shogo Fun Site</header>
-
+  
   <div class="slideshow">
-    <img src="assets/images/top_pc1.JPG" alt="Slide 1" class="active">
-    <img src="assets/images/top_pc2.JPG" alt="Slide 2">
-    <img src="assets/images/top_pc3.JPG" alt="Slide 3">
-
+    <img src="https://sho5.org/assets/images/top_pc1.JPG" alt="Slide 1" class="active">
+    <img src="https://sho5.org/assets/images/top_pc2.JPG" alt="Slide 2">
+    <img src="https://sho5.org/assets/images/top_pc3.JPG" alt="Slide 3">
+    
     <div class="indicators">
       <button data-slide="0" class="active">•</button>
       <button data-slide="1">•</button>
       <button data-slide="2">•</button>
     </div>
   </div>
-
+  
   <div class="links">
     <a href="news.html">Newsroom</a>
     <a href="https://lin.ee/TqFSBw3K">LINE Official</a>
     <a href="gallery.html">Photo Gallery</a>
     <a href="schedule.html">Schedule</a>
   </div>
-
-  <footer>
-    Copyright © 2023-2025 Akira Yoshida.
-  </footer>
-
+  
+  <footer>Copyright © 2023-2025 Akira Yoshida.</footer>
+  
   <script>
-    // Slideshow functionality
     let currentIndex = 0;
     const slides = document.querySelectorAll('.slideshow img');
     const dots = document.querySelectorAll('.indicators button');
-
+    
     function showSlide(index) {
-      slides.forEach((slide, i) => {
-        slide.classList.toggle('active', i === index);
-      });
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === index);
-      });
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
     }
-
+    
     function nextSlide() {
       currentIndex = (currentIndex + 1) % slides.length;
       showSlide(currentIndex);
     }
-
+    
     dots.forEach((dot, index) => {
       dot.addEventListener('click', () => {
         currentIndex = index;
         showSlide(currentIndex);
       });
     });
-
+    
     setInterval(nextSlide, 7000);
-
+    
     // Touch support
     let startX = 0;
     const slideshow = document.querySelector('.slideshow');
-
+    
     slideshow.addEventListener('touchstart', (e) => {
       startX = e.touches[0].clientX;
     });
-
+    
     slideshow.addEventListener('touchend', (e) => {
       const endX = e.changedTouches[0].clientX;
       if (startX > endX + 50) {
@@ -174,8 +141,6 @@
         showSlide(currentIndex);
       }
     });
-
-
   </script>
 </body>
 </html>

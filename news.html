@@ -1,43 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Newsroom - Shogo Fun Site</title>
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      background-color: white;
-      color: black;
-    }
-
-
-    header {
-      text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-      margin: 20px 0;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: sans-serif; background: white; color: black; }
+    header { text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }
+    
     .news-feed {
       width: calc(100% - 20px);
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
     }
-
+    
     @media (max-width: 600px) {
-      .news-feed {
-        width: 100%;
-        padding: 10px;
-      }
+      .news-feed { width: 100%; padding: 10px; }
     }
-
+    
     #search {
       width: 100%;
       padding: 10px;
@@ -46,57 +28,36 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-
+    
     .news-item {
       border-bottom: 1px solid #ddd;
       margin-bottom: 15px;
       padding-bottom: 10px;
     }
-
-    .news-item h3 {
-      margin: 5px 0;
-      font-size: 18px;
-    }
-
-    .news-item h3 a {
-      color: black;
-      text-decoration: none;
-    }
-
-    .news-item h3 a:hover {
-      text-decoration: underline;
-    }
-
-    .news-item p {
-      margin: 5px 0;
-      font-size: 14px;
-    }
-
+    
+    .news-item h3 { margin: 5px 0; font-size: 18px; }
+    .news-item h3 a { color: black; text-decoration: none; }
+    .news-item h3 a:hover { text-decoration: underline; }
+    .news-item p { margin: 5px 0; font-size: 14px; }
+    
     #loadMore {
       display: block;
       margin: 20px auto;
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
-      background-color: #eee;
+      background: #eee;
       border: 1px solid #ccc;
       border-radius: 5px;
-      transition: all 0.3s;
+      transition: background 0.3s;
     }
-
-    #loadMore:hover {
-      background-color: #ddd;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 12px;
-      margin: 20px 0;
-    }
+    
+    #loadMore:hover { background: #ddd; }
+    
+    footer { text-align: center; font-size: 12px; margin: 20px 0; }
   </style>
 </head>
 <body>
-  
   <header>Newsroom</header>
   
   <section class="news-feed">
@@ -105,95 +66,58 @@
     <button id="loadMore">Load More</button>
   </section>
   
-  <footer>
-    Copyright © 2023-2025 Akira Yoshida.
-  </footer>
+  <footer>Copyright © 2023-2025 Akira Yoshida.</footer>
   
   <script>
-    let allArticles = [];
-    let initialArticles = [];
+    const sampleNews = [
+      {
+        title: "野球チーム、春季大会で優勝を果たす",
+        pubDate: new Date("2025-01-15"),
+        description: "地域の春季野球大会において、見事優勝を勝ち取りました。チーム一丸となって戦い抜いた結果です。"
+      },
+      {
+        title: "新しいメンバーが加入しました",
+        pubDate: new Date("2025-01-10"),
+        description: "経験豊富な選手たちが新たにチームに加わり、さらなる飛躍を目指します。"
+      },
+      {
+        title: "練習試合の結果報告",
+        pubDate: new Date("2025-01-05"),
+        description: "他チームとの練習試合を行い、多くの課題と成果を確認することができました。"
+      }
+    ];
+    
+    let allArticles = sampleNews;
+    let initialArticles = sampleNews;
     let isAllDisplayed = false;
-
-    const newsContainer = document.getElementById("news-container");
-    const loadMoreBtn = document.getElementById("loadMore");
-    const searchInput = document.getElementById("search");
-
-    // Sample news data for design testing
-    function loadSampleNews() {
-      allArticles = [
-        {
-          title: "野球チーム、春季大会で優勝を果たす",
-          link: "#",
-          pubDate: new Date("2025-01-15"),
-          description: "地域の春季野球大会において、見事優勝を勝ち取りました。チーム一丸となって戦い抜いた結果です。"
-        },
-        {
-          title: "新しいメンバーが加入しました",
-          link: "#",
-          pubDate: new Date("2025-01-10"),
-          description: "経験豊富な選手たちが新たにチームに加わり、さらなる飛躍を目指します。"
-        },
-        {
-          title: "練習試合の結果報告",
-          link: "#",
-          pubDate: new Date("2025-01-05"),
-          description: "他チームとの練習試合を行い、多くの課題と成果を確認することができました。"
-        },
-        {
-          title: "冬季トレーニングキャンプ開催",
-          link: "#",
-          pubDate: new Date("2024-12-20"),
-          description: "体力向上と技術習得を目指した冬季キャンプを実施しました。"
-        },
-        {
-          title: "チーム活動の年末総括",
-          link: "#",
-          pubDate: new Date("2024-12-15"),
-          description: "今年一年間の活動を振り返り、来年に向けた目標を設定しました。"
-        }
-      ];
-      
-      allArticles.sort((a, b) => b.pubDate - a.pubDate);
-      
-      const now = new Date();
-      const threeMonthsAgo = new Date(now);
-      threeMonthsAgo.setMonth(now.getMonth() - 3);
-      initialArticles = allArticles.filter(article => article.pubDate >= threeMonthsAgo);
-      
-      renderNews();
-    }
-
+    
     function renderNews() {
-      const searchQuery = searchInput.value.trim().toLowerCase();
+      const searchQuery = document.getElementById('search').value.trim().toLowerCase();
       let articlesToDisplay = searchQuery
         ? allArticles.filter(article => {
-            const text = (article.title + " " + (article.description || article.summary || "")).toLowerCase();
+            const text = (article.title + " " + article.description).toLowerCase();
             return text.includes(searchQuery);
           })
         : (isAllDisplayed ? allArticles : initialArticles);
-
-      newsContainer.innerHTML = articlesToDisplay.map(article => `
+      
+      document.getElementById('news-container').innerHTML = articlesToDisplay.map(article => `
         <div class="news-item">
-          <h3><a href="${article.link}" target="_blank">${article.title}</a></h3>
+          <h3><a href="#" target="_blank">${article.title}</a></h3>
           <p>${article.pubDate.toLocaleString()}</p>
-          <p>${article.description || article.summary || ""}</p>
-          ${article.imageUrl ? `<img src="${article.imageUrl}" alt="Image" style="width:100%; height: auto; max-height: none; object-fit: contain; border-radius:5px;">` : ""}
+          <p>${article.description}</p>
         </div>
       `).join("");
     }
-
-    loadMoreBtn.addEventListener("click", () => {
+    
+    document.getElementById('loadMore').addEventListener('click', () => {
       isAllDisplayed = true;
       renderNews();
-      loadMoreBtn.style.display = "none";
+      document.getElementById('loadMore').style.display = 'none';
     });
-
-    searchInput.addEventListener("input", () => {
-      renderNews();
-    });
-
-
-    loadSampleNews();
+    
+    document.getElementById('search').addEventListener('input', renderNews);
+    
+    renderNews();
   </script>
 </body>
 </html>

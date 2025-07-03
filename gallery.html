@@ -1,30 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Photo Gallery - Shogo Fun Site</title>
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: sans-serif;
-      background-color: white;
-      color: black;
-    }
-
-    header {
-      text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-      margin: 20px 0;
-    }
-
-    .login-container {
-      width: calc(100% - 20px);
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: sans-serif; background: white; color: black; }
+    header { text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }
+    
+    .container {
       max-width: 400px;
       margin: 50px auto;
       padding: 20px;
@@ -32,19 +17,11 @@
       border-radius: 10px;
       text-align: center;
     }
-
-    .login-container h2 {
-      margin-bottom: 20px;
-      font-size: 20px;
-    }
-
-    .login-container p {
-      margin-bottom: 20px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    #email {
+    
+    .container h2 { margin-bottom: 20px; font-size: 20px; }
+    .container p { margin-bottom: 20px; font-size: 14px; color: #666; }
+    
+    input[type="email"] {
       width: 100%;
       padding: 10px;
       font-size: 16px;
@@ -52,120 +29,70 @@
       border: 1px solid #ccc;
       border-radius: 5px;
     }
-
-    #loginBtn {
+    
+    .btn {
       width: 100%;
       padding: 12px;
       font-size: 16px;
       cursor: pointer;
-      background-color: black;
+      background: black;
       color: white;
       border: none;
       border-radius: 5px;
-      transition: all 0.3s;
+      transition: background 0.3s;
+      text-decoration: none;
+      display: inline-block;
     }
-
-    #loginBtn:hover {
-      background-color: #333;
-    }
-
-    #loginBtn:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
+    
+    .btn:hover { background: #333; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    
     .message {
       margin-top: 20px;
       padding: 10px;
       border-radius: 5px;
       display: none;
     }
-
-    .message.success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
-
-    .message.error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-
-    .pricing-section {
-      width: calc(100% - 20px);
+    
+    .message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    
+    .pricing {
       max-width: 600px;
       margin: 50px auto;
       padding: 20px;
       text-align: center;
     }
-
+    
     .pricing-card {
       border: 1px solid #ddd;
       border-radius: 10px;
       padding: 30px;
       margin: 20px 0;
     }
-
-    .pricing-card h3 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    .pricing-card .price {
-      font-size: 32px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-
-    .pricing-card ul {
-      text-align: left;
-      margin-bottom: 30px;
-      padding-left: 20px;
-    }
-
-    .pricing-card li {
-      margin-bottom: 10px;
-    }
-
-    .subscribe-btn {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      cursor: pointer;
-      background-color: black;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      transition: all 0.3s;
-    }
-
-    .subscribe-btn:hover {
-      background-color: #333;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 12px;
-      margin: 20px 0;
-    }
+    
+    .pricing-card h3 { font-size: 24px; margin-bottom: 10px; }
+    .pricing-card .price { font-size: 32px; font-weight: bold; margin-bottom: 20px; }
+    .pricing-card ul { text-align: left; margin-bottom: 30px; padding-left: 20px; }
+    .pricing-card li { margin-bottom: 10px; }
+    
+    footer { text-align: center; font-size: 12px; margin: 20px 0; }
   </style>
 </head>
 <body>
   <header>Photo Gallery</header>
   
-  <div class="login-container">
+  <div class="container">
     <h2>Member Login</h2>
     <p>Enter your email address to receive a magic link for gallery access.</p>
     
     <input type="email" id="email" placeholder="your@email.com" required>
-    <button id="loginBtn" onclick="sendMagicLink()">Send Magic Link</button>
+    <button class="btn" onclick="sendMagicLink()">Send Magic Link</button>
     
     <div id="message" class="message"></div>
   </div>
 
-  <div class="pricing-section">
+  <div class="pricing">
     <h2>Not a member yet?</h2>
     
     <div class="pricing-card">
@@ -177,53 +104,25 @@
         <li>Early access to new photos</li>
         <li>Cancel anytime</li>
       </ul>
-      <a class="subscribe-btn" href="https://buy.stripe.com/test_PAYMENT_LINK" target="_blank">Subscribe Monthly</a>
+      <a class="btn" href="https://buy.stripe.com/test_PAYMENT_LINK" target="_blank">Subscribe Monthly</a>
     </div>
   </div>
   
-  <footer>
-    Copyright © 2023-2025 Akira Yoshida.
-  </footer>
+  <footer>Copyright © 2023-2025 Akira Yoshida.</footer>
   
   <script>
-    async function sendMagicLink() {
+    function sendMagicLink() {
       const email = document.getElementById('email').value;
       const messageDiv = document.getElementById('message');
-      const loginBtn = document.getElementById('loginBtn');
       
       if (!email) {
         showMessage('Please enter your email address.', 'error');
         return;
       }
       
-      loginBtn.disabled = true;
-      loginBtn.textContent = 'Sending...';
-      
-      try {
-        // TODO: Implement API call to check membership and send magic link
-        const response = await fetch('/api/send-magic-link', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email })
-        });
-        
-        if (response.ok) {
-          showMessage('Magic link sent! Check your email.', 'success');
-        } else {
-          const error = await response.json();
-          showMessage(error.message || 'Email not found in member list.', 'error');
-        }
-      } catch (error) {
-        // For testing - simulate success
-        showMessage('Magic link sent! Check your email. (Test mode)', 'success');
-      }
-      
-      loginBtn.disabled = false;
-      loginBtn.textContent = 'Send Magic Link';
+      // Demo mode - always show success
+      showMessage('Magic link sent! Check your email. (Demo mode)', 'success');
     }
-    
     
     function showMessage(text, type) {
       const messageDiv = document.getElementById('message');
