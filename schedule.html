@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule - Shogo Fun Site</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: white;
+      color: black;
+    }
+
+    header {
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    .schedule-container {
+      width: calc(100% - 20px);
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .schedule-container {
+        width: 100%;
+        padding: 10px;
+      }
+    }
+
+    .schedule-item {
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+    }
+
+    .schedule-date {
+      font-size: 18px;
+      font-weight: 600;
+      color: black;
+      margin-bottom: 5px;
+    }
+
+    .schedule-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .schedule-details {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .schedule-location {
+      font-size: 14px;
+      color: #888;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>Schedule</header>
+  
+  <section class="schedule-container">
+    <div id="schedule-list"></div>
+  </section>
+  
+  <footer>
+    Copyright © 2023-2025 Akira Yoshida.
+  </footer>
+  
+  <script>
+    // Sample schedule data
+    const scheduleData = [
+      {
+        date: "2025-01-25",
+        title: "春季大会 決勝戦",
+        details: "午前10時開始",
+        location: "メイン球場"
+      },
+      {
+        date: "2025-01-20",
+        title: "練習試合",
+        details: "対戦相手: チーム B",
+        location: "サブ球場"
+      },
+      {
+        date: "2025-01-15",
+        title: "合同練習",
+        details: "午後2時〜5時",
+        location: "練習場A"
+      },
+      {
+        date: "2025-01-10",
+        title: "チームミーティング",
+        details: "戦術確認・体調管理",
+        location: "クラブハウス"
+      },
+      {
+        date: "2025-01-05",
+        title: "新春初練習",
+        details: "基礎体力向上メニュー",
+        location: "練習場B"
+      }
+    ];
+
+    function renderSchedule() {
+      const scheduleList = document.getElementById('schedule-list');
+      
+      scheduleList.innerHTML = scheduleData.map(item => {
+        const date = new Date(item.date);
+        const formattedDate = date.toLocaleDateString('ja-JP', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'long'
+        });
+        
+        return `
+          <div class="schedule-item">
+            <div class="schedule-date">${formattedDate}</div>
+            <div class="schedule-title">${item.title}</div>
+            <div class="schedule-details">${item.details}</div>
+            <div class="schedule-location">📍 ${item.location}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    renderSchedule();
+  </script>
+</body>
+</html>
