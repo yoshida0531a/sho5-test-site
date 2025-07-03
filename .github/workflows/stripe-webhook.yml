@@ -1,0 +1,87 @@
+name: Process Stripe Webhook
+
+on:
+  repository_dispatch:
+    types: [stripe_payment_completed]
+
+jobs:
+  process-payment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Add member to list
+        run: |
+          echo "Processing payment for: ${{ github.event.client_payload.email }}"
+          
+          # Add email to members.json
+          python3 -c "
+          import json
+          from datetime import datetime
+          
+          email = '${{ github.event.client_payload.email }}'
+          
+          # Load existing members
+          with open('members.json', 'r') as f:
+              data = json.load(f)
+          
+          # Add new member
+          new_member = {
+              'email': email,
+              'joined': datetime.now().isoformat() + 'Z',
+              'status': 'active'
+          }
+          
+          # Check if already exists
+          if not any(m['email'] == email for m in data['members']):
+              data['members'].append(new_member)
+              data['lastUpdated'] = datetime.now().isoformat() + 'Z'
+              
+              with open('members.json', 'w') as f:
+                  json.dump(data, f, indent=2)
+          "
+          
+      - name: Send welcome email
+        env:
+          SMTP_EMAIL: ${{ secrets.SMTP_EMAIL }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        run: |
+          python3 -c "
+          import smtplib
+          import os
+          from email.mime.text import MIMEText
+          from email.mime.multipart import MIMEMultipart
+          
+          email = '${{ github.event.client_payload.email }}'
+          magic_link = 'https://your-site.com/gallery?token=generated_token_here'
+          
+          msg = MIMEMultipart()
+          msg['From'] = os.environ['SMTP_EMAIL']
+          msg['To'] = email
+          msg['Subject'] = 'Welcome to Photo Gallery'
+          
+          body = f'''
+          Welcome to our photo gallery!
+          
+          Click here to access: {magic_link}
+          
+          This link will expire in 24 hours.
+          '''
+          
+          msg.attach(MIMEText(body, 'plain'))
+          
+          server = smtplib.SMTP('smtp.gmail.com', 587)
+          server.starttls()
+          server.login(os.environ['SMTP_EMAIL'], os.environ['SMTP_PASSWORD'])
+          server.send_message(msg)
+          server.quit()
+          "
+          
+      - name: Commit updated members list
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add members.json
+          git diff --staged --quiet || git commit -m "Add new member: ${{ github.event.client_payload.email }}"
+          git push

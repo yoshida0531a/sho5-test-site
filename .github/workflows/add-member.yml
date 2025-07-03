@@ -1,0 +1,115 @@
+name: Add New Member
+
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: 'Member email address'
+        required: true
+        type: string
+
+jobs:
+  add-member:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Add member to list
+        run: |
+          echo "Adding member: ${{ github.event.inputs.email }}"
+          
+          python3 << 'EOF'
+          import json
+          from datetime import datetime
+          
+          email = "${{ github.event.inputs.email }}"
+          
+          # Load members.json
+          with open('members.json', 'r') as f:
+              data = json.load(f)
+          
+          # Check if already exists
+          if any(m['email'] == email for m in data['members']):
+              print(f"Member {email} already exists")
+              exit(0)
+          
+          # Add new member
+          new_member = {
+              "email": email,
+              "joined": datetime.now().isoformat() + "Z",
+              "status": "active"
+          }
+          
+          data['members'].append(new_member)
+          data['lastUpdated'] = datetime.now().isoformat() + "Z"
+          
+          # Save updated file
+          with open('members.json', 'w') as f:
+              json.dump(data, f, indent=2)
+          
+          print(f"Added member: {email}")
+          EOF
+          
+      - name: Send welcome email
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
+        run: |
+          python3 << 'EOF'
+          import smtplib
+          import os
+          from email.mime.text import MIMEText
+          from email.mime.multipart import MIMEMultipart
+          import base64
+          import secrets
+          
+          def generate_magic_token(email):
+              return base64.urlsafe_b64encode(f"{email}:{secrets.token_hex(16)}".encode()).decode()
+          
+          email = "${{ github.event.inputs.email }}"
+          token = generate_magic_token(email)
+          magic_link = f"https://yoshida0531a.github.io/sho5-test-site/gallery-access.html?token={token}"
+          
+          # Create email
+          msg = MIMEMultipart()
+          msg['From'] = os.environ['GMAIL_USER']
+          msg['To'] = email
+          msg['Subject'] = 'Photo Gallery Access - Welcome!'
+          
+          body = f"""
+          Welcome to our Photo Gallery!
+          
+          Click the link below to access your exclusive content:
+          {magic_link}
+          
+          This link will expire in 24 hours.
+          
+          Thank you for your support!
+          """
+          
+          msg.attach(MIMEText(body, 'plain'))
+          
+          # Send email
+          try:
+              server = smtplib.SMTP('smtp.gmail.com', 587)
+              server.starttls()
+              server.login(os.environ['GMAIL_USER'], os.environ['GMAIL_PASSWORD'])
+              server.send_message(msg)
+              server.quit()
+              print(f"Welcome email sent to {email}")
+          except Exception as e:
+              print(f"Failed to send email: {e}")
+          EOF
+          
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add members.json
+          git diff --staged --quiet || git commit -m "Add new member: ${{ github.event.inputs.email }}
+
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          git push
