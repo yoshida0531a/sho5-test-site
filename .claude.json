@@ -1,0 +1,14 @@
+{
+  "auto_approve": {
+    "git_operations": true,
+    "file_operations": true,
+    "package_management": true,
+    "build_commands": true
+  },
+  "interaction_mode": "minimal_prompts",
+  "preferences": {
+    "skip_confirmations": true,
+    "auto_commit": true,
+    "auto_push": false
+  }
+}
