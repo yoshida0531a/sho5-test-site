@@ -1,0 +1,202 @@
+name: Update News with AI Summary
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Fetch and summarize news
+        env:
+          HF_API_KEY: ${{ secrets.HF_API_KEY }}
+        run: |
+          python3 << 'EOF'
+          import json
+          import requests
+          import re
+          import os
+          from datetime import datetime, timedelta
+          
+          # Hugging Face API settings
+          HF_API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
+          HF_HEADERS = {"Authorization": f"Bearer {os.environ.get('HF_API_KEY', '')}"}
+          
+          # Sample RSS sources (add real RSS feeds)
+          RSS_SOURCES = [
+              "https://news.yahoo.co.jp/pickup/rss.xml",
+              "https://feeds.feedburner.com/hatena/b/hotentry",
+          ]
+          
+          def clean_text(text):
+              # Remove HTML tags and clean text
+              text = re.sub(r'<[^>]+>', '', text)
+              text = re.sub(r'\s+', ' ', text).strip()
+              return text[:500]  # Limit length for API
+          
+          def summarize_with_hf(text):
+              try:
+                  response = requests.post(
+                      HF_API_URL,
+                      headers=HF_HEADERS,
+                      json={"inputs": text, "parameters": {"max_length": 100, "min_length": 30}},
+                      timeout=30
+                  )
+                  if response.status_code == 200:
+                      result = response.json()
+                      if isinstance(result, list) and len(result) > 0:
+                          return result[0].get('summary_text', text[:100] + '...')
+                  return text[:100] + '...'  # Fallback
+              except:
+                  return text[:100] + '...'  # Fallback
+          
+          # Sample news data (replace with actual RSS parsing)
+          sample_news = [
+              {
+                  "title": "テクノロジー業界の最新動向について",
+                  "original_content": "今年のテクノロジー業界では、AI技術の発展が目覚ましく、特に自然言語処理分野での革新が続いています。多くの企業がAIを活用したサービスを展開し、ユーザー体験の向上を図っています。",
+                  "link": "#",
+                  "pubDate": datetime.now().isoformat()
+              },
+              {
+                  "title": "持続可能な開発への取り組み",
+                  "original_content": "環境問題への関心が高まる中、多くの組織が持続可能な開発目標の達成に向けた取り組みを強化しています。再生可能エネルギーの利用拡大や、循環型経済の実現に向けた施策が進められています。",
+                  "link": "#", 
+                  "pubDate": datetime.now().isoformat()
+              }
+          ]
+          
+          # Process news with AI summary
+          processed_news = []
+          for article in sample_news:
+              summary = summarize_with_hf(article["original_content"])
+              
+              processed_article = {
+                  "title": article["title"],
+                  "summary": summary,
+                  "link": article["link"],
+                  "pubDate": article["pubDate"],
+                  "processed_at": datetime.now().isoformat()
+              }
+              processed_news.append(processed_article)
+          
+          # Save processed news
+          with open('news-data.json', 'w', encoding='utf-8') as f:
+              json.dump(processed_news, f, ensure_ascii=False, indent=2)
+          
+          print(f"Processed {len(processed_news)} articles")
+          EOF
+          
+      - name: Update news.html
+        run: |
+          python3 << 'EOF'
+          import json
+          from datetime import datetime
+          
+          # Load processed news
+          with open('news-data.json', 'r', encoding='utf-8') as f:
+              news_data = json.load(f)
+          
+          # Generate news items HTML
+          news_items = ""
+          for article in news_data:
+              pub_date = datetime.fromisoformat(article["pubDate"].replace('Z', '+00:00'))
+              formatted_date = pub_date.strftime('%Y年%m月%d日')
+              
+              news_items += f'''
+          <div class="news-item">
+            <h3><a href="{article["link"]}" target="_blank">{article["title"]}</a></h3>
+            <p class="date">{formatted_date}</p>
+            <p class="summary">{article["summary"]}</p>
+          </div>'''
+          
+          # Update news.html template
+          html_template = f'''<!DOCTYPE html>
+          <html lang="ja">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Newsroom - Shogo Fun Site</title>
+            <style>
+              * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+              body {{ font-family: sans-serif; background: white; color: black; }}
+              header {{ text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }}
+              
+              .news-feed {{
+                width: calc(100% - 20px);
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+              }}
+              
+              @media (max-width: 600px) {{
+                .news-feed {{ width: 100%; padding: 10px; }}
+              }}
+              
+              .news-item {{
+                border-bottom: 1px solid #ddd;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+              }}
+              
+              .news-item h3 {{ margin: 5px 0; font-size: 18px; }}
+              .news-item h3 a {{ color: black; text-decoration: none; }}
+              .news-item h3 a:hover {{ text-decoration: underline; }}
+              .news-item .date {{ margin: 5px 0; font-size: 12px; color: #666; }}
+              .news-item .summary {{ margin: 10px 0; font-size: 14px; line-height: 1.5; }}
+              
+              .disclaimer {{
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                padding: 15px;
+                margin: 20px 0;
+                font-size: 12px;
+                color: #666;
+              }}
+              
+              footer {{ text-align: center; font-size: 12px; margin: 20px 0; }}
+            </style>
+          </head>
+          <body>
+            <header>Newsroom</header>
+            
+            <section class="news-feed">
+              <div class="disclaimer">
+                ※ このページの記事は、AI技術を使用して要約・編集されています。
+                元記事の内容を正確に表現するよう努めていますが、詳細は元サイトをご確認ください。
+              </div>
+              
+              {news_items}
+            </section>
+            
+            <footer>
+              Copyright © 2023-2025 Akira Yoshida. | Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M')}
+            </footer>
+          </body>
+          </html>'''
+          
+          with open('news.html', 'w', encoding='utf-8') as f:
+              f.write(html_template)
+          
+          print("news.html updated successfully")
+          EOF
+          
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add news.html news-data.json
+          git diff --staged --quiet || git commit -m "Update news with AI summaries
+          
+          Auto-generated news summaries using AI
+          
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          git push
