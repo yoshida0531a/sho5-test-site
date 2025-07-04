@@ -1,0 +1,2 @@
+Trigger news update: 2025-01-04 20:30
+Manual test execution requested
