@@ -1,0 +1,26 @@
+# News Sites URLs for Direct Content Fetching
+# Format: URL (one per line)
+
+# NHK News Technology
+https://www3.nhk.or.jp/news/html/20250705/k10014513301000.html
+
+# Yahoo News Main
+https://news.yahoo.co.jp/
+
+# ITmedia News
+https://www.itmedia.co.jp/news/
+
+# TechCrunch Japan
+https://jp.techcrunch.com/
+
+# GIGAZINE
+https://gigazine.net/
+
+# ASCII.jp
+https://ascii.jp/
+
+# Impress Watch
+https://www.watch.impress.co.jp/
+
+# PC Watch
+https://pc.watch.impress.co.jp/

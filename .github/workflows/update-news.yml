@@ -2,7 +2,7 @@ name: Update News with AI Summary
 
 on:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 8 * * *'  # 毎朝8時に実行
   workflow_dispatch:
 
 jobs:
@@ -13,19 +13,24 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         
-      - name: Generate AI-powered news
+      - name: Generate AI-powered news from RSS and sites
         env:
           HF_API_KEY: ${{ secrets.HF_API_KEY }}
         run: |
           python3 -c "
-          import json, requests, os
-          from datetime import datetime
+          import json, requests, os, re, hashlib
+          from datetime import datetime, timedelta
+          import xml.etree.ElementTree as ET
+          from urllib.parse import urljoin, urlparse
           
           api_key = os.environ.get('HF_API_KEY', '')
           print(f'🔑 API Key: {\"✅\" if api_key else \"❌ Missing\"}')
           
           def summarize_with_ai(text):
               if not api_key:
+                  sentences = text.split('。')
+                  if len(sentences) >= 2:
+                      return sentences[0] + '。' + sentences[1][:50] + '。' if len(sentences[1]) > 50 else sentences[0] + '。' + sentences[1] + '。'
                   return text[:200] + '...'
               try:
                   # 日本語対応のmT5モデルを使用
@@ -40,9 +45,6 @@ jobs:
                       summary = result[0].get('generated_text', '').strip()
                       if summary and len(summary) > 20:
                           return summary
-                      else:
-                          print('⚠️ Empty summary, using fallback')
-                          return text[:200] + '...'
                   print(f'⚠️ API Error: {response.status_code}')
                   # APIエラーの場合は日本語でシンプルな要約を作成
                   sentences = text.split('。')
@@ -57,36 +59,120 @@ jobs:
                       return sentences[0] + '。' + sentences[1][:50] + '。' if len(sentences[1]) > 50 else sentences[0] + '。' + sentences[1] + '。'
                   return text[:200] + '...'
           
-          # Sample news with longer content
-          news_data = [
-              {
-                  'title': 'AI技術の最新動向と社会への影響',
-                  'content': '2025年に入り、AI技術の発展は新たな段階を迎えています。特に自然言語処理分野では、大規模言語モデルの精度向上により、より人間らしい対話が可能になりました。企業では業務効率化のためのAI導入が加速し、製造業、金融業、医療分野での実用化が進んでいます。一方で、AI倫理やプライバシー保護の議論も活発化しており、適切な規制とイノベーションのバランスが重要な課題となっています。',
-                  'link': '#ai-tech'
-              },
-              {
-                  'title': '持続可能な開発目標と企業の取り組み',
-                  'content': '国連の持続可能な開発目標（SDGs）達成に向けて、世界中の企業が積極的な取り組みを展開しています。再生可能エネルギーの導入、循環型経済の推進、社会的責任投資の拡大など、多岐にわたる施策が実施されています。特に日本企業では、カーボンニュートラル実現に向けた技術開発と投資が加速しており、グリーン技術分野での国際競争力強化が期待されています。消費者の環境意識の高まりも企業行動の変化を後押ししています。',
-                  'link': '#sustainability'
-              }
-          ]
+          def load_previous_data():
+              '''前回の記事データを読み込み'''
+              try:
+                  with open('news-data.json', 'r', encoding='utf-8') as f:
+                      return json.load(f)
+              except:
+                  return []
           
-          # Process with AI
+          def fetch_rss_feeds():
+              '''RSS フィードから記事を取得'''
+              feeds = []
+              try:
+                  with open('news-updater/feeds.txt', 'r', encoding='utf-8') as f:
+                      for line in f:
+                          line = line.strip()
+                          if line and not line.startswith('#'):
+                              feeds.append(line)
+              except:
+                  print('⚠️ feeds.txt not found')
+                  return []
+              
+              articles = []
+              for feed_url in feeds:
+                  try:
+                      print(f'📡 Fetching RSS: {feed_url}')
+                      response = requests.get(feed_url, timeout=10)
+                      response.raise_for_status()
+                      
+                      root = ET.fromstring(response.content)
+                      
+                      # RSS 2.0 format
+                      for item in root.findall('.//item'):
+                          title = item.find('title')
+                          description = item.find('description')
+                          link = item.find('link')
+                          pub_date = item.find('pubDate')
+                          
+                          if title is not None and description is not None:
+                              # 24時間以内の記事のみ取得
+                              if pub_date is not None:
+                                  try:
+                                      from email.utils import parsedate_to_datetime
+                                      article_date = parsedate_to_datetime(pub_date.text)
+                                      if article_date < datetime.now() - timedelta(days=1):
+                                          continue
+                                  except:
+                                      pass
+                              
+                              # HTMLタグを除去
+                              desc_text = re.sub(r'<[^>]+>', '', description.text or '')
+                              
+                              articles.append({
+                                  'title': title.text or '',
+                                  'content': desc_text[:800],
+                                  'link': link.text or '' if link is not None else '',
+                                  'source': 'RSS',
+                                  'feed_url': feed_url
+                              })
+                  except Exception as e:
+                      print(f'⚠️ RSS Error {feed_url}: {e}')
+              
+              return articles
+          
+          def generate_article_hash(title, content):
+              '''記事のハッシュ値を生成（重複チェック用）'''
+              return hashlib.md5(f'{title}{content}'.encode()).hexdigest()
+          
+          # 前回のデータを読み込み
+          previous_data = load_previous_data()
+          previous_hashes = set()
+          for item in previous_data:
+              if 'hash' in item:
+                  previous_hashes.add(item['hash'])
+          
+          # RSS フィードから記事を取得
+          rss_articles = fetch_rss_feeds()
+          
+          # 新しい記事のみをフィルタリング
+          new_articles = []
+          for article in rss_articles:
+              article_hash = generate_article_hash(article['title'], article['content'])
+              if article_hash not in previous_hashes:
+                  new_articles.append(article)
+          
+          print(f'📊 Found {len(rss_articles)} RSS articles, {len(new_articles)} new articles')
+          
+          # 新しい記事を処理
           processed = []
-          for item in news_data:
-              summary = summarize_with_ai(item['content'])
-              processed.append({
-                  'title': item['title'],
-                  'summary': summary,
-                  'link': item['link'],
-                  'pubDate': datetime.now().isoformat(),
-                  'processed_at': datetime.now().isoformat()
-              })
+          for article in new_articles[:5]:  # 最大5記事まで処理
+              try:
+                  summary = summarize_with_ai(article['content'])
+                  article_hash = generate_article_hash(article['title'], article['content'])
+                  
+                  processed.append({
+                      'title': article['title'],
+                      'summary': summary,
+                      'link': article['link'],
+                      'source': article['source'],
+                      'pubDate': datetime.now().isoformat(),
+                      'processed_at': datetime.now().isoformat(),
+                      'hash': article_hash
+                  })
+                  print(f'✅ Processed: {article[\"title\"][:50]}...')
+              except Exception as e:
+                  print(f'⚠️ Processing error: {e}')
+          
+          # 前回のデータと新しいデータを結合（最新20件まで保持）
+          all_articles = processed + previous_data
+          all_articles = all_articles[:20]
           
           with open('news-data.json', 'w', encoding='utf-8') as f:
-              json.dump(processed, f, ensure_ascii=False, indent=2)
+              json.dump(all_articles, f, ensure_ascii=False, indent=2)
           
-          print(f'✅ Processed {len(processed)} articles with AI')
+          print(f'✅ Total articles saved: {len(all_articles)} (New: {len(processed)})')
           "
           
       - name: Create HTML

@@ -1,0 +1,26 @@
+# RSS Feed URLs for News Sources
+# Format: URL (one per line)
+
+# NHK News
+https://www3.nhk.or.jp/rss/news/cat0.xml
+
+# Yahoo News - IT
+https://news.yahoo.co.jp/rss/topics/it.xml
+
+# Yahoo News - Science
+https://news.yahoo.co.jp/rss/topics/science.xml
+
+# Impress Watch - IT News
+https://www.watch.impress.co.jp/data/rss/1.0/ipw/feed.rdf
+
+# ITmedia News
+https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml
+
+# TechCrunch Japan
+https://feeds.feedburner.com/jp-techcrunch
+
+# GIGAZINE
+https://gigazine.net/news/rss_2.0/
+
+# ASCII.jp
+https://ascii.jp/rss.xml
