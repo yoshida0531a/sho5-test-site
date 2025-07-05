@@ -1,2 +1,2 @@
-Trigger news update: 2025-07-05 10:12
-Fixed workflow with improved error handling and debugging
+Trigger news update: 2025-07-05 10:15
+Manual workflow trigger test with fixed error handling
