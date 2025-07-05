@@ -2,8 +2,8 @@ name: Update News with AI Summary
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours  
-  workflow_dispatch:  # Manual trigger
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   update-news:
@@ -11,54 +11,71 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         
-      - name: Generate news with AI
+      - name: Create test news
         run: |
-          python3 -c "
-          import json
-          from datetime import datetime
-          
-          print('Starting news generation...')
-          
-          # Simple news data
-          news = [
-              {'title': 'AI技術の最新動向', 'summary': 'AI技術の発展が目覚ましく、自然言語処理分野での革新が続いています... (AI要約は準備中です)', 'link': '#'},
-              {'title': '持続可能な開発', 'summary': '環境問題への関心が高まる中、持続可能な開発目標達成への取り組みが強化されています... (AI要約は準備中です)', 'link': '#'}
+          echo "Creating test news..."
+          cat > news-data.json << 'EOF'
+          [
+            {
+              "title": "AI技術の最新動向",
+              "summary": "AI技術の発展が目覚ましく、自然言語処理分野での革新が続いています... (AI要約は準備中です)",
+              "link": "#",
+              "pubDate": "2025-07-05T02:25:00",
+              "processed_at": "2025-07-05T02:25:00"
+            },
+            {
+              "title": "持続可能な開発",
+              "summary": "環境問題への関心が高まる中、持続可能な開発目標達成への取り組みが強化されています... (AI要約は準備中です)",
+              "link": "#",
+              "pubDate": "2025-07-05T02:25:00",
+              "processed_at": "2025-07-05T02:25:00"
+            }
           ]
+          EOF
+          echo "✓ Created news data"
           
-          # Add timestamps
-          for item in news:
-              item['pubDate'] = datetime.now().isoformat()
-              item['processed_at'] = datetime.now().isoformat()
-          
-          # Save to file
-          with open('news-data.json', 'w', encoding='utf-8') as f:
-              json.dump(news, f, ensure_ascii=False, indent=2)
-          
-          print(f'✓ Generated {len(news)} articles')
-          "
-          
-      - name: Update news.html
+      - name: Create HTML
         run: |
-          python3 -c "
-          import json
-          from datetime import datetime
-          
-          print('Loading news data...')
-          with open('news-data.json', 'r') as f:
-              news = json.load(f)
-          
-          print('Generating HTML...')
-          items = ''
-          for item in news:
-              items += f'<div class=\"news-item\"><h3><a href=\"{item[\"link\"]}\">{item[\"title\"]}</a></h3><p class=\"date\">{datetime.now().strftime(\"%Y年%m月%d日\")}</p><p class=\"summary\">{item[\"summary\"]}</p></div>'
-          
-          html = f'<!DOCTYPE html><html lang=\"ja\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Newsroom - Shogo Fun Site</title><style>*{{margin:0;padding:0;box-sizing:border-box}}body{{font-family:sans-serif;background:white;color:black}}header{{text-align:center;font-size:28px;font-weight:bold;margin:20px 0}}.news-feed{{width:calc(100% - 20px);max-width:800px;margin:0 auto;padding:20px}}.news-item{{border-bottom:1px solid #ddd;margin-bottom:20px;padding-bottom:15px}}.news-item h3{{margin:5px 0;font-size:18px}}.news-item h3 a{{color:black;text-decoration:none}}.news-item .date{{margin:5px 0;font-size:12px;color:#666}}.news-item .summary{{margin:10px 0;font-size:14px;line-height:1.5}}footer{{text-align:center;font-size:12px;margin:20px 0}}</style></head><body><header>Newsroom</header><section class=\"news-feed\">{items}</section><footer>Copyright © 2023-2025 Akira Yoshida. | Last updated: {datetime.now().strftime(\"%Y-%m-%d %H:%M\")}</footer></body></html>'
-          
-          with open('news.html', 'w', encoding='utf-8') as f:
-              f.write(html)
-          
-          print('✓ HTML updated')
-          "
+          echo "Creating HTML..."
+          cat > news.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="ja">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Newsroom - Shogo Fun Site</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: sans-serif; background: white; color: black; }
+              header { text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }
+              .news-feed { width: calc(100% - 20px); max-width: 800px; margin: 0 auto; padding: 20px; }
+              .news-item { border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 15px; }
+              .news-item h3 { margin: 5px 0; font-size: 18px; }
+              .news-item h3 a { color: black; text-decoration: none; }
+              .news-item .date { margin: 5px 0; font-size: 12px; color: #666; }
+              .news-item .summary { margin: 10px 0; font-size: 14px; line-height: 1.5; }
+              footer { text-align: center; font-size: 12px; margin: 20px 0; }
+            </style>
+          </head>
+          <body>
+            <header>Newsroom</header>
+            <section class="news-feed">
+              <div class="news-item">
+                <h3><a href="#">AI技術の最新動向</a></h3>
+                <p class="date">2025年07月05日</p>
+                <p class="summary">AI技術の発展が目覚ましく、自然言語処理分野での革新が続いています... (AI要約は準備中です)</p>
+              </div>
+              <div class="news-item">
+                <h3><a href="#">持続可能な開発</a></h3>
+                <p class="date">2025年07月05日</p>
+                <p class="summary">環境問題への関心が高まる中、持続可能な開発目標達成への取り組みが強化されています... (AI要約は準備中です)</p>
+              </div>
+            </section>
+            <footer>Copyright © 2023-2025 Akira Yoshida.</footer>
+          </body>
+          </html>
+          EOF
+          echo "✓ Created HTML"
           
       - name: Commit changes
         run: |
@@ -67,7 +84,7 @@ jobs:
           git add news.html news-data.json
           
           if ! git diff --staged --quiet; then
-            git commit -m "Update news with AI summaries 🤖"
+            git commit -m "Update news 🤖"
             git push
           else
             echo "No changes"
