@@ -67,6 +67,12 @@ jobs:
               except:
                   return []
           
+          def check_tanibata_keywords(text):
+              '''谷端選手関連のキーワードをチェック'''
+              if '谷端' in text:
+                  return True, '谷端'
+              return False, None
+          
           def fetch_rss_feeds():
               '''RSS フィードから記事を取得'''
               feeds = []
@@ -84,7 +90,7 @@ jobs:
               for feed_url in feeds:
                   try:
                       print(f'📡 Fetching RSS: {feed_url}')
-                      response = requests.get(feed_url, timeout=10)
+                      response = requests.get(feed_url, timeout=15)
                       response.raise_for_status()
                       
                       root = ET.fromstring(response.content)
@@ -97,28 +103,93 @@ jobs:
                           pub_date = item.find('pubDate')
                           
                           if title is not None and description is not None:
-                              # 24時間以内の記事のみ取得
+                              title_text = title.text or ''
+                              desc_text = re.sub(r'<[^>]+>', '', description.text or '')
+                              full_text = title_text + ' ' + desc_text
+                              
+                              # 谷端選手関連のキーワードチェック
+                              has_keyword, found_keyword = check_tanibata_keywords(full_text)
+                              if not has_keyword:
+                                  continue
+                              
+                              # 48時間以内の記事のみ取得
                               if pub_date is not None:
                                   try:
                                       from email.utils import parsedate_to_datetime
                                       article_date = parsedate_to_datetime(pub_date.text)
-                                      if article_date < datetime.now() - timedelta(days=1):
+                                      if article_date < datetime.now() - timedelta(days=2):
                                           continue
                                   except:
                                       pass
                               
-                              # HTMLタグを除去
-                              desc_text = re.sub(r'<[^>]+>', '', description.text or '')
-                              
                               articles.append({
-                                  'title': title.text or '',
+                                  'title': title_text,
                                   'content': desc_text[:800],
                                   'link': link.text or '' if link is not None else '',
                                   'source': 'RSS',
-                                  'feed_url': feed_url
+                                  'feed_url': feed_url,
+                                  'keyword': found_keyword
                               })
+                              print(f'⚾ Found 谷端 RSS article: {title_text[:50]}...')
                   except Exception as e:
                       print(f'⚠️ RSS Error {feed_url}: {e}')
+              
+              return articles
+          
+          def fetch_news_sites():
+              '''ニュースサイトから記事を直接取得'''
+              sites = []
+              try:
+                  with open('news-updater/news_sites.txt', 'r', encoding='utf-8') as f:
+                      for line in f:
+                          line = line.strip()
+                          if line and not line.startswith('#'):
+                              sites.append(line)
+              except:
+                  print('⚠️ news_sites.txt not found')
+                  return []
+              
+              articles = []
+              for site_url in sites:
+                  try:
+                      print(f'🌐 Fetching website: {site_url}')
+                      response = requests.get(site_url, timeout=15, headers={
+                          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                      })
+                      response.raise_for_status()
+                      
+                      # HTMLコンテンツから記事を抽出
+                      html_content = response.text
+                      
+                      # 基本的なHTMLパース（タイトルとコンテンツを抽出）
+                      title_match = re.search(r'<title[^>]*>([^<]+)</title>', html_content, re.IGNORECASE)
+                      title_text = title_match.group(1).strip() if title_match else site_url
+                      
+                      # メインコンテンツを抽出（記事本文）
+                      content_text = re.sub(r'<script[^>]*>.*?</script>', '', html_content, flags=re.DOTALL | re.IGNORECASE)
+                      content_text = re.sub(r'<style[^>]*>.*?</style>', '', content_text, flags=re.DOTALL | re.IGNORECASE)
+                      content_text = re.sub(r'<[^>]+>', ' ', content_text)
+                      content_text = re.sub(r'\\s+', ' ', content_text).strip()
+                      
+                      full_text = title_text + ' ' + content_text
+                      
+                      # 谷端選手関連のキーワードチェック
+                      has_keyword, found_keyword = check_tanibata_keywords(full_text)
+                      if not has_keyword:
+                          continue
+                      
+                      articles.append({
+                          'title': title_text,
+                          'content': content_text[:1000],
+                          'link': site_url,
+                          'source': 'Website',
+                          'site_url': site_url,
+                          'keyword': found_keyword
+                      })
+                      print(f'⚾ Found 谷端 website article: {title_text[:50]}...')
+                      
+                  except Exception as e:
+                      print(f'⚠️ Website Error {site_url}: {e}')
               
               return articles
           
@@ -133,17 +204,27 @@ jobs:
               if 'hash' in item:
                   previous_hashes.add(item['hash'])
           
-          # RSS フィードから記事を取得
+          # RSS フィードと直接サイトから記事を取得
           rss_articles = fetch_rss_feeds()
+          site_articles = fetch_news_sites()
+          
+          # 全記事を結合
+          all_fetched_articles = rss_articles + site_articles
           
           # 新しい記事のみをフィルタリング
           new_articles = []
-          for article in rss_articles:
+          for article in all_fetched_articles:
               article_hash = generate_article_hash(article['title'], article['content'])
               if article_hash not in previous_hashes:
                   new_articles.append(article)
           
-          print(f'📊 Found {len(rss_articles)} RSS articles, {len(new_articles)} new articles')
+          print(f'📊 Found {len(rss_articles)} RSS articles, {len(site_articles)} website articles')
+          print(f'📊 Total: {len(all_fetched_articles)} articles, {len(new_articles)} new articles')
+          
+          # 谷端関連記事がない場合はページ更新をスキップ
+          if len(new_articles) == 0:
+              print('🔍 No new 谷端 articles found. Skipping page update.')
+              exit(0)
           
           # 新しい記事を処理
           processed = []

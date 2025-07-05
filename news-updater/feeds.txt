@@ -1,33 +1,18 @@
-# RSS Feed URLs for News Sources
+# RSS Feed URLs for Baseball/Sports News Sources
 # Format: URL (one per line)
-# Based on shogobot repository configuration
+# Based on shogobot repository configuration for Tanibata player news
 
-# Yahoo News - IT
-https://news.yahoo.co.jp/rss/topics/it.xml
+# 日刊スポーツ - 野球アマチュア
+https://www.nikkansports.com/baseball/amateur/atom.xml
 
-# Yahoo News - Science  
-https://news.yahoo.co.jp/rss/topics/science.xml
+# Yahoo Sports - スポニチアネックス
+https://news.yahoo.co.jp/rss/media/spnaviv/all.xml
 
-# Yahoo News - Business
-https://news.yahoo.co.jp/rss/topics/business.xml
+# Yahoo Sports - スポーツ報知
+https://news.yahoo.co.jp/rss/media/sph/all.xml
 
-# ITmedia News
-https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml
+# Yahoo Sports - 中日スポーツ
+https://news.yahoo.co.jp/rss/media/chuspo/all.xml
 
-# TechCrunch Japan
-https://feeds.feedburner.com/jp-techcrunch
-
-# GIGAZINE
-https://gigazine.net/news/rss_2.0/
-
-# ASCII.jp
-https://ascii.jp/rss.xml
-
-# PC Watch
-https://pc.watch.impress.co.jp/data/rss/1.0/pcw/feed.rdf
-
-# Internet Watch  
-https://internet.watch.impress.co.jp/data/rss/1.0/iw/feed.rdf
-
-# Impress Watch
-https://www.watch.impress.co.jp/data/rss/1.0/ipw/feed.rdf
+# Yahoo Sports - 日刊スポーツ
+https://news.yahoo.co.jp/rss/media/nksports/all.xml

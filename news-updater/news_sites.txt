@@ -1,26 +1,24 @@
 # News Sites URLs for Direct Content Fetching
 # Format: URL (one per line)
+# Based on shogobot repository configuration for Tanibata player news
 
-# NHK News Technology
-https://www3.nhk.or.jp/news/html/20250705/k10014513301000.html
+# Yahoo Sports - 大学野球ニュース一覧
+https://sports.yahoo.co.jp/list/news/baseball_univ?genre=baseball_univ
 
-# Yahoo News Main
-https://news.yahoo.co.jp/
+# 日本大学 - スポーツニュース
+https://www.nihon-u.ac.jp/sports/news/355/
 
-# ITmedia News
-https://www.itmedia.co.jp/news/
+# Yahoo Sports - 特集記事
+https://sports.yahoo.co.jp/official/detail/2024052000019-spnaviow
 
-# TechCrunch Japan
-https://jp.techcrunch.com/
+# スポーツニッポン - 野球記事
+https://www.sponichi.co.jp/baseball/news/2024/12/22/kiji/20241222s00001089192000c.html
 
-# GIGAZINE
-https://gigazine.net/
+# ドラフト会議 - 大学野球ニュース
+https://www.draft-kaigi.jp/university/univ-draftnews/77427/
 
-# ASCII.jp
-https://ascii.jp/
+# 日刊スポーツ - 野球ニュース
+https://www.nikkansports.com/baseball/news/202404160000467.html
 
-# Impress Watch
-https://www.watch.impress.co.jp/
-
-# PC Watch
-https://pc.watch.impress.co.jp/
+# スポーツ報知 - 野球記事
+https://hochi.news/articles/20241005-OHT1T51044.html
