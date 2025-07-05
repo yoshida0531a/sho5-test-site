@@ -3,449 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>谷端選手ニュースルーム - 大学野球特化</title>
+  <title>Newsroom - Shogo Fun Site</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-      background: linear-gradient(135deg, #2E8B57 0%, #228B22 50%, #006400 100%);
-      color: #333;
-      line-height: 1.6;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    header { 
-      text-align: center; 
-      margin-bottom: 40px;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      border: 3px solid #228B22;
-    }
-    .header-title {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #006400;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-    }
-    .header-subtitle {
-      font-size: 1.2rem;
-      color: #2E8B57;
-      margin-bottom: 15px;
-      font-weight: 600;
-    }
-    .player-info {
-      background: #228B22;
-      color: white;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 15px 0;
-      font-size: 1rem;
-      font-weight: 500;
-    }
-    .last-update {
-      font-size: 0.9rem;
-      color: #666;
-      font-style: italic;
-    }
-    .news-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 25px;
-      margin-bottom: 40px;
-    }
-    .news-card {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
-      border-left: 5px solid #228B22;
-    }
-    .news-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-      border-left: 5px solid #006400;
-    }
-    .news-title {
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 15px;
-      line-height: 1.4;
-    }
-    .news-title a {
-      color: #006400;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-    .news-title a:hover {
-      color: #228B22;
-    }
-    .news-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      font-size: 0.85rem;
-      color: #7f8c8d;
-    }
-    .news-source {
-      background: #228B22;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-    .keyword-badge {
-      background: #FFD700;
-      color: #006400;
-      padding: 4px 8px;
-      border-radius: 15px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-left: 10px;
-    }
-    .news-date {
-      font-style: italic;
-      color: #666;
-    }
-    .news-summary {
-      font-size: 1rem;
-      line-height: 1.6;
-      color: #333;
-      margin-bottom: 15px;
-      background: #f8f9fa;
-      padding: 15px;
-      border-radius: 8px;
-      border-left: 4px solid #228B22;
-    }
-    .read-more {
-      display: inline-block;
-      background: #228B22;
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.9rem;
-      transition: all 0.3s ease;
-    }
-    .read-more:hover {
-      background: #006400;
-      transform: scale(1.05);
-    }
-    .stats {
-      text-align: center;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      margin-bottom: 30px;
-      border: 2px solid #228B22;
-    }
-    .stats-text {
-      font-size: 1.1rem;
-      color: #006400;
-      font-weight: 600;
-    }
-    .no-news {
-      text-align: center;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 40px;
-      border-radius: 15px;
-      color: #666;
-      font-size: 1.1rem;
-    }
-    footer { 
-      text-align: center; 
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 0.9rem;
-      margin-top: 40px;
-      background: rgba(0, 0, 0, 0.2);
-      padding: 20px;
-      border-radius: 10px;
-    }
-    @media (max-width: 768px) {
-      .container { padding: 15px; }
-      .header-title { font-size: 2rem; }
-      .news-grid { grid-template-columns: 1fr; gap: 20px; }
-      .news-card { padding: 20px; }
-      .news-title { font-size: 1.2rem; }
-    }
+    body { font-family: sans-serif; background: white; color: black; }
+    header { text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }
+    .news-feed { width: calc(100% - 20px); max-width: 800px; margin: 0 auto; padding: 20px; }
+    .news-item { border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 15px; }
+    .news-item h3 { margin: 5px 0; font-size: 18px; }
+    .news-item h3 a { color: black; text-decoration: none; }
+    .news-item .date { margin: 5px 0; font-size: 12px; color: #666; }
+    .news-item .summary { margin: 10px 0; font-size: 14px; line-height: 1.5; }
+    footer { text-align: center; font-size: 12px; margin: 20px 0; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="header-title">⚾ 谷端選手ニュースルーム</div>
-      <div class="header-subtitle">大学野球・プロ野球ニュース AI要約</div>
-      <div class="player-info">
-        🏟️ 日本大学 → 読売ジャイアンツ | 🏫 星稜高校出身
-      </div>
-      <div class="last-update">Last updated: 2025年07月05日 05:01</div>
-    </header>
-        <div class="stats">
-          <div class="stats-text">⚾ 谷端選手関連ニュース 17 件 | 🤖 AI要約で野球情報をキャッチアップ</div>
-        </div>
-        
-        <div class="news-grid">
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854571000.html" target="_blank">鹿児島 十島村で地震活動続く “震度6弱程度の地震に注意”</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">鹿児島県のトカラ列島近海で地震活動が活発になってから5日で2週間です。十島村では5日も震度5強の揺れを観測するなど震度1以上の揺れを観測した地震は1300回以上にのぼって。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854571000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854721000.html" target="_blank">松江 住宅2棟全焼の火事 煙吸うなど11人搬送 命に別状はなし</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">5日朝早く、松江市で住宅2棟が全焼する火事があり、煙を吸うなどした11人が病院に搬送されました。警察によりますと、いずれも命に別状はないということです。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854721000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854461000.html" target="_blank">参議院選挙 公示後 最初の週末 各党 政策訴え支持拡大図る</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">参議院選挙の公示後最初の週末となり、各党は、目標議席の獲得に向けて党首や幹部が重視する選挙区で政策を訴えるなど、支持拡大を図ることにしています。。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854461000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854651000.html" target="_blank">栃木 佐野 車とトラックが衝突事故 高校生1人死亡 1人意識不明</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">5日朝、栃木県佐野市で乗用車とトラックが衝突する事故があり、乗用車に乗っていた10代の男性3人のうち、17歳の男子高校生が死亡し、1人が意識不明の重体になっています。警察が事故の詳しい状況を調べています。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854651000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854371000.html" target="_blank">岩手 北上 クマに襲われ女性死亡 5日も付近で姿確認 警戒続く</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">4日、岩手県北上市の住宅で高齢の女性がクマに襲われて死亡したことを受けて、警察などが周辺の警戒を続けていますが、5日朝も現場付近でクマの姿が確認されたということです。女性を襲ったのと同じクマかは分かっていませんが、警察と市は捕獲を試みるとともに注意を呼びかけています。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854371000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854661000.html" target="_blank">アメリカ テキサス州で洪水 子ども含む少なくとも24人死亡</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">アメリカ南部テキサス州で大雨による洪水が発生して子どもを含む少なくとも24人が死亡し、当局は引き続き行方がわからなくなっている人たちの捜索を続けています。。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854661000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854571000.html" target="_blank">鹿児島 十島村で地震活動続く “震度6弱程度の地震に注意”</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">鹿児島県のトカラ列島近海で地震活動が活発になってから5日で2週間です。十島村では5日も震度5強の揺れを観測するなど震度1以上の揺れを観測した地震は1300回以上にのぼって。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854571000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854721000.html" target="_blank">松江 住宅2棟全焼の火事 煙吸うなど11人搬送 命に別状はなし</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">5日朝早く、松江市で住宅2棟が全焼する火事があり、煙を吸うなどした11人が病院に搬送されました。警察によりますと、いずれも命に別状はないということです。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854721000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854641000.html" target="_blank">千葉 松戸 道路脇敷地で倒れた男性発見 その後死亡 ひき逃げか</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">5日明け方、千葉県松戸市の道路脇の敷地で30代の男性が倒れているのが見つかり、その後、死亡しました。警察は現場の状況からひき逃げ事件として捜査しています。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854641000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854651000.html" target="_blank">栃木 佐野 車とトラックが衝突事故 高校生1人死亡 1人意識不明</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 04:56</span>
-            </div>
-            <div class="news-summary">5日朝、栃木県佐野市で乗用車とトラックが衝突する事故があり、乗用車に乗っていた10代の男性3人のうち、17歳の男子高校生が死亡し、1人が意識不明の重体になっています。警察が事故の詳しい状況を調べています。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854651000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854571000.html" target="_blank">【地震情報】鹿児島 悪石島で震度5強 十島村“全員 無事確認”</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 03:12</span>
-            </div>
-            <div class="news-summary">鹿児島県のトカラ列島近海で地震活動が活発になってから5日で2週間です。十島村では5日も震度5強の揺れを観測するなど震度1以上の揺れを観測した地震は1300回以上にのぼって。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854571000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854301000.html" target="_blank">西日本中心に気温上昇 猛暑日のところも 熱中症への対策徹底を</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 03:12</span>
-            </div>
-            <div class="news-summary">5日も西日本を中心に気温が上がり、中国地方や近畿などでは午前中から35度以上の猛暑日になっています。このあとも各地で猛烈な暑さが予想されていて、引き続き、熱中症への対策を徹底してください。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854301000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854701000.html" target="_blank">鹿児島 バス事故 11人搬送 J3鹿児島ユナイテッド U-15の中学生</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 03:12</span>
-            </div>
-            <div class="news-summary">5日鹿児島市で、サッカーJ3、鹿児島ユナイテッドFCのU-15の中学生の選手が乗ったマイクロバスが電柱に衝突する事故があり、あわせて11人が病院に運ばれました。全員、意識はあるということで、警察が詳しい状況を調べています。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854701000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854591000.html" target="_blank">トランプ大統領 重要政策の減税法案に署名し成立</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 03:12</span>
-            </div>
-            <div class="news-summary">アメリカのトランプ大統領は4日、重要政策として掲げてきた減税策を盛り込んだ法案に署名し、成立させました。。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854591000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854611000.html" target="_blank">気象庁会見 悪石島“当面 最大震度6弱程度の地震に注意を”</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 03:12</span>
-            </div>
-            <div class="news-summary">鹿児島県十島村で震度5強の揺れを観測した地震について気象庁は5日、会見を開き、これまでの地震活動や警戒すべき点などについて説明しました。。</div>
-            <a href="http://www3.nhk.or.jp/news/html/20250705/k10014854611000.html" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="#ai-tech" target="_blank">AI技術の最新動向と社会への影響</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">Baseball RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 03:04</span>
-            </div>
-            <div class="news-summary">2025年に入り、AI技術の発展は新たな段階を迎えています。特に自然言語処理分野では、大規模言語モデルの精度向上により、より人間らしい対話が可能になりました。</div>
-            <a href="#ai-tech" target="_blank" class="read-more">📰 全文を読む</a>
-          </div>
-          <div class="news-card">
-            <div class="news-title">
-              <a href="#sustainability" target="_blank">持続可能な開発目標と企業の取り組み</a>
-            </div>
-            <div class="news-meta">
-              <div>
-                <span class="news-source">Baseball RSS</span>
-                <span class="keyword-badge">谷端</span>
-              </div>
-              <span class="news-date">07月05日 03:04</span>
-            </div>
-            <div class="news-summary">国連の持続可能な開発目標（SDGs）達成に向けて、世界中の企業が積極的な取り組みを展開しています。再生可能エネルギーの導入、循環型経済の推進、社会的責任投資の拡大など、多岐にわたる施策が実施されてい。</div>
-            <a href="#sustainability" target="_blank" class="read-more">📰 全文を読む</a>
-          </div></div>
-    <footer>
-      <div>⚾ 谷端選手専用ニュースサイト | 🤖 AI-Powered Baseball News</div>
-      <div style="margin-top: 10px; font-size: 0.8rem;">
-        Sources: スポニチ、日刊スポーツ、Yahoo Sports、NHK、共同通信 他
-      </div>
-      <div style="margin-top: 5px; font-size: 0.8rem;">
-        Keywords: 谷端 + 日大/大学/星稜/巨人/ジャイアンツ
-      </div>
-    </footer>
-  </div>
+  <header>Newsroom</header>
+  <section class="news-feed">
+    <div class="news-item">
+      <h3><a href="https://www.itmedia.co.jp/news/articles/2507/05/news025.html">ヤフオク、使用済み下着の出品を一律禁止　例外だったマタニティ用や補正用もNGに</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">LINEヤフーが、オークションサイト「Yahoo!オークション」で、使用済み下着の出品を一律で禁止にすると発表した。これまでも使用済み下着の出品は原則として禁止しており、補正用下着や妊婦用の下着、ウエディングドレス用。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="https://www.itmedia.co.jp/news/articles/2507/04/news113.html">ライブ配信に欠かせないスイッチャー、その“外回り”を強化するローランドの戦略</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">長年スイッチャーを手掛けるローランドが、ソフトウェアで攻勢をかけている。HDMIケーブル1本でテロップとマスクを同時伝送する独自技術や、iPadでスイッチャーを直感操作でき。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="https://www.itmedia.co.jp/news/articles/2507/04/news110.html">カプコン、カスハラ対応方針を発表　「モンハンワイルズ」の“レビュー過激化”をけん制か</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">カプコンは、カスタマーハラスメントへの対応方針を発表した。。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="https://www.itmedia.co.jp/news/articles/2507/04/news109.html">「現場警官の熱中症防げ」冷却ベストを試験運用　ファン式とペルチェ式を用意　山梨県警</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">山梨県警は厳しい暑さの中で現場対応する警察官の熱中症対策の一環として、冷却ベストの試験運用を始めた。ファンを使って冷やすタイプと、半導体熱電素子の一種であるペルチェ素子を使ったタイプの2種を用意し、交。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="https://www.itmedia.co.jp/news/articles/2507/04/news108.html">広告か有料購読か、答えのないニュースの在り方　ペイウォールの課題は“マンガ配信”に解決のヒント？</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">普段さまざまなメディアを通して目にするニュースは、無料で無尽蔵に情報が提供されているように見える。しかし実際には、そのニュースを提供するためのコストがかかっており、どこかで回収が図られている。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854571000.html">鹿児島 十島村で地震活動続く “震度6弱程度の地震に注意”</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">鹿児島県のトカラ列島近海で地震活動が活発になってから5日で2週間です。十島村では5日も震度5強の揺れを観測するなど震度1以上の揺れを観測した地震は1300回以上にのぼって。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854721000.html">松江 住宅2棟全焼の火事 煙吸うなど11人搬送 命に別状はなし</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">5日朝早く、松江市で住宅2棟が全焼する火事があり、煙を吸うなどした11人が病院に搬送されました。警察によりますと、いずれも命に別状はないということです。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854461000.html">参議院選挙 公示後 最初の週末 各党 政策訴え支持拡大図る</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">参議院選挙の公示後最初の週末となり、各党は、目標議席の獲得に向けて党首や幹部が重視する選挙区で政策を訴えるなど、支持拡大を図ることにしています。。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854651000.html">栃木 佐野 車とトラックが衝突事故 高校生1人死亡 1人意識不明</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">5日朝、栃木県佐野市で乗用車とトラックが衝突する事故があり、乗用車に乗っていた10代の男性3人のうち、17歳の男子高校生が死亡し、1人が意識不明の重体になっています。警察が事故の詳しい状況を調べています。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854371000.html">岩手 北上 クマに襲われ女性死亡 5日も付近で姿確認 警戒続く</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">4日、岩手県北上市の住宅で高齢の女性がクマに襲われて死亡したことを受けて、警察などが周辺の警戒を続けていますが、5日朝も現場付近でクマの姿が確認されたということです。女性を襲ったのと同じクマかは分かっていませんが、警察と市は捕獲を試みるとともに注意を呼びかけています。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854661000.html">アメリカ テキサス州で洪水 子ども含む少なくとも24人死亡</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">アメリカ南部テキサス州で大雨による洪水が発生して子どもを含む少なくとも24人が死亡し、当局は引き続き行方がわからなくなっている人たちの捜索を続けています。。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854571000.html">鹿児島 十島村で地震活動続く “震度6弱程度の地震に注意”</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">鹿児島県のトカラ列島近海で地震活動が活発になってから5日で2週間です。十島村では5日も震度5強の揺れを観測するなど震度1以上の揺れを観測した地震は1300回以上にのぼって。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854721000.html">松江 住宅2棟全焼の火事 煙吸うなど11人搬送 命に別状はなし</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">5日朝早く、松江市で住宅2棟が全焼する火事があり、煙を吸うなどした11人が病院に搬送されました。警察によりますと、いずれも命に別状はないということです。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854641000.html">千葉 松戸 道路脇敷地で倒れた男性発見 その後死亡 ひき逃げか</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">5日明け方、千葉県松戸市の道路脇の敷地で30代の男性が倒れているのが見つかり、その後、死亡しました。警察は現場の状況からひき逃げ事件として捜査しています。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854651000.html">栃木 佐野 車とトラックが衝突事故 高校生1人死亡 1人意識不明</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">5日朝、栃木県佐野市で乗用車とトラックが衝突する事故があり、乗用車に乗っていた10代の男性3人のうち、17歳の男子高校生が死亡し、1人が意識不明の重体になっています。警察が事故の詳しい状況を調べています。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854571000.html">【地震情報】鹿児島 悪石島で震度5強 十島村“全員 無事確認”</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">鹿児島県のトカラ列島近海で地震活動が活発になってから5日で2週間です。十島村では5日も震度5強の揺れを観測するなど震度1以上の揺れを観測した地震は1300回以上にのぼって。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854301000.html">西日本中心に気温上昇 猛暑日のところも 熱中症への対策徹底を</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">5日も西日本を中心に気温が上がり、中国地方や近畿などでは午前中から35度以上の猛暑日になっています。このあとも各地で猛烈な暑さが予想されていて、引き続き、熱中症への対策を徹底してください。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854701000.html">鹿児島 バス事故 11人搬送 J3鹿児島ユナイテッド U-15の中学生</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">5日鹿児島市で、サッカーJ3、鹿児島ユナイテッドFCのU-15の中学生の選手が乗ったマイクロバスが電柱に衝突する事故があり、あわせて11人が病院に運ばれました。全員、意識はあるということで、警察が詳しい状況を調べています。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854591000.html">トランプ大統領 重要政策の減税法案に署名し成立</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">アメリカのトランプ大統領は4日、重要政策として掲げてきた減税策を盛り込んだ法案に署名し、成立させました。。</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="http://www3.nhk.or.jp/news/html/20250705/k10014854611000.html">気象庁会見 悪石島“当面 最大震度6弱程度の地震に注意を”</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">鹿児島県十島村で震度5強の揺れを観測した地震について気象庁は5日、会見を開き、これまでの地震活動や警戒すべき点などについて説明しました。。</p>
+    </div>
+  </section>
+  <footer>Copyright © 2023-2025 Akira Yoshida.</footer>
 </body>
 </html>
