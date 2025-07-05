@@ -12,108 +12,53 @@ jobs:
       - uses: actions/checkout@v3
         
       - name: Generate news with AI
-        env:
-          HF_API_KEY: ${{ secrets.HF_API_KEY }}
         run: |
-          python3 << 'EOF'
-          import json, requests, os
-          from datetime import datetime
-          
-          api_key = os.environ.get('HF_API_KEY', '')
-          print(f"API Key: {'✓' if api_key else '✗'}")
-          
-          def summarize(text):
-              if not api_key:
-                  print("⚠️ API key not found, using fallback summary")
-                  return text[:100] + "... (AI要約は準備中です)"
-              try:
-                  response = requests.post(
-                      "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
-                      headers={"Authorization": f"Bearer {api_key}"},
-                      json={"inputs": text[:500], "parameters": {"max_length": 100}},
-                      timeout=30
-                  )
-                  if response.status_code == 200:
-                      result = response.json()
-                      return result[0].get('summary_text', text[:100] + '...')
-                  print(f"API Error: {response.status_code}")
-                  return text[:100] + '... (AI要約エラー)'
-              except Exception as e:
-                  print(f"Error: {e}")
-                  return text[:100] + '... (AI要約エラー)'
-          
-          news = [
-              {"title": "AI技術の最新動向", "content": "AI技術の発展が目覚ましく、自然言語処理分野での革新が続いています。多くの企業がAIサービスを展開中。", "link": "#"},
-              {"title": "持続可能な開発", "content": "環境問題への関心が高まる中、持続可能な開発目標達成への取り組みが強化されています。", "link": "#"}
-          ]
-          
-          processed = [{
-              "title": item["title"],
-              "summary": summarize(item["content"]),
-              "link": item["link"], 
-              "pubDate": datetime.now().isoformat(),
-              "processed_at": datetime.now().isoformat()
-          } for item in news]
-          
-          with open('news-data.json', 'w', encoding='utf-8') as f:
-              json.dump(processed, f, ensure_ascii=False, indent=2)
-          
-          print(f"✓ Processed {len(processed)} articles")
-          EOF
-          
-      - name: Update news.html
-        run: |
-          python3 << 'EOF'
+          python3 -c "
           import json
           from datetime import datetime
           
+          print('Starting news generation...')
+          
+          # Simple news data
+          news = [
+              {'title': 'AI技術の最新動向', 'summary': 'AI技術の発展が目覚ましく、自然言語処理分野での革新が続いています... (AI要約は準備中です)', 'link': '#'},
+              {'title': '持続可能な開発', 'summary': '環境問題への関心が高まる中、持続可能な開発目標達成への取り組みが強化されています... (AI要約は準備中です)', 'link': '#'}
+          ]
+          
+          # Add timestamps
+          for item in news:
+              item['pubDate'] = datetime.now().isoformat()
+              item['processed_at'] = datetime.now().isoformat()
+          
+          # Save to file
+          with open('news-data.json', 'w', encoding='utf-8') as f:
+              json.dump(news, f, ensure_ascii=False, indent=2)
+          
+          print(f'✓ Generated {len(news)} articles')
+          "
+          
+      - name: Update news.html
+        run: |
+          python3 -c "
+          import json
+          from datetime import datetime
+          
+          print('Loading news data...')
           with open('news-data.json', 'r') as f:
               news = json.load(f)
           
-          items = ''.join([f'''
-            <div class="news-item">
-              <h3><a href="{item["link"]}">{item["title"]}</a></h3>
-              <p class="date">{datetime.now().strftime('%Y年%m月%d日')}</p>
-              <p class="summary">{item["summary"]}</p>
-            </div>''' for item in news])
+          print('Generating HTML...')
+          items = ''
+          for item in news:
+              items += f'<div class=\"news-item\"><h3><a href=\"{item[\"link\"]}\">{item[\"title\"]}</a></h3><p class=\"date\">{datetime.now().strftime(\"%Y年%m月%d日\")}</p><p class=\"summary\">{item[\"summary\"]}</p></div>'
           
-          html = f'''<!DOCTYPE html>
-          <html lang="ja">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Newsroom - Shogo Fun Site</title>
-            <style>
-              * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-              body {{ font-family: sans-serif; background: white; color: black; }}
-              header {{ text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }}
-              .news-feed {{ width: calc(100% - 20px); max-width: 800px; margin: 0 auto; padding: 20px; }}
-              @media (max-width: 600px) {{ .news-feed {{ width: 100%; padding: 10px; }} }}
-              .news-item {{ border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 15px; }}
-              .news-item h3 {{ margin: 5px 0; font-size: 18px; }}
-              .news-item h3 a {{ color: black; text-decoration: none; }}
-              .news-item h3 a:hover {{ text-decoration: underline; }}
-              .news-item .date {{ margin: 5px 0; font-size: 12px; color: #666; }}
-              .news-item .summary {{ margin: 10px 0; font-size: 14px; line-height: 1.5; }}
-              .disclaimer {{ background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin: 20px 0; font-size: 12px; color: #666; }}
-              footer {{ text-align: center; font-size: 12px; margin: 20px 0; }}
-            </style>
-          </head>
-          <body>
-            <header>Newsroom</header>
-            <section class="news-feed">
-              <div class="disclaimer">※ AI技術で要約・編集されています。詳細は元サイトをご確認ください。</div>
-              {items}
-            </section>
-            <footer>Copyright © 2023-2025 Akira Yoshida. | Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M')}</footer>
-          </body>
-          </html>'''
+          html = f'<!DOCTYPE html><html lang=\"ja\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Newsroom - Shogo Fun Site</title><style>*{{margin:0;padding:0;box-sizing:border-box}}body{{font-family:sans-serif;background:white;color:black}}header{{text-align:center;font-size:28px;font-weight:bold;margin:20px 0}}.news-feed{{width:calc(100% - 20px);max-width:800px;margin:0 auto;padding:20px}}.news-item{{border-bottom:1px solid #ddd;margin-bottom:20px;padding-bottom:15px}}.news-item h3{{margin:5px 0;font-size:18px}}.news-item h3 a{{color:black;text-decoration:none}}.news-item .date{{margin:5px 0;font-size:12px;color:#666}}.news-item .summary{{margin:10px 0;font-size:14px;line-height:1.5}}footer{{text-align:center;font-size:12px;margin:20px 0}}</style></head><body><header>Newsroom</header><section class=\"news-feed\">{items}</section><footer>Copyright © 2023-2025 Akira Yoshida. | Last updated: {datetime.now().strftime(\"%Y-%m-%d %H:%M\")}</footer></body></html>'
           
           with open('news.html', 'w', encoding='utf-8') as f:
               f.write(html)
           
-          print("✓ HTML updated")
-          EOF
+          print('✓ HTML updated')
+          "
           
       - name: Commit changes
         run: |
