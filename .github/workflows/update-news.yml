@@ -13,28 +13,67 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         
-      - name: Create test news
+      - name: Generate AI-powered news
+        env:
+          HF_API_KEY: ${{ secrets.HF_API_KEY }}
         run: |
-          echo "Creating test news..."
-          cat > news-data.json << 'EOF'
-          [
-            {
-              "title": "AI技術の最新動向",
-              "summary": "AI技術の発展が目覚ましく、自然言語処理分野での革新が続いています... (AI要約は準備中です)",
-              "link": "#",
-              "pubDate": "2025-07-05T02:25:00",
-              "processed_at": "2025-07-05T02:25:00"
-            },
-            {
-              "title": "持続可能な開発",
-              "summary": "環境問題への関心が高まる中、持続可能な開発目標達成への取り組みが強化されています... (AI要約は準備中です)",
-              "link": "#",
-              "pubDate": "2025-07-05T02:25:00",
-              "processed_at": "2025-07-05T02:25:00"
-            }
+          python3 -c "
+          import json, requests, os
+          from datetime import datetime
+          
+          api_key = os.environ.get('HF_API_KEY', '')
+          print(f'🔑 API Key: {\"✅\" if api_key else \"❌ Missing\"}')
+          
+          def summarize_with_ai(text):
+              if not api_key:
+                  return text[:200] + '...'
+              try:
+                  response = requests.post(
+                      'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
+                      headers={'Authorization': f'Bearer {api_key}'},
+                      json={'inputs': text[:800], 'parameters': {'max_length': 200, 'min_length': 100}},
+                      timeout=30
+                  )
+                  if response.status_code == 200:
+                      result = response.json()
+                      return result[0].get('summary_text', text[:200] + '...')
+                  print(f'⚠️ API Error: {response.status_code}')
+                  return text[:200] + '...'
+              except Exception as e:
+                  print(f'⚠️ AI Error: {e}')
+                  return text[:200] + '...'
+          
+          # Sample news with longer content
+          news_data = [
+              {
+                  'title': 'AI技術の最新動向と社会への影響',
+                  'content': '2025年に入り、AI技術の発展は新たな段階を迎えています。特に自然言語処理分野では、大規模言語モデルの精度向上により、より人間らしい対話が可能になりました。企業では業務効率化のためのAI導入が加速し、製造業、金融業、医療分野での実用化が進んでいます。一方で、AI倫理やプライバシー保護の議論も活発化しており、適切な規制とイノベーションのバランスが重要な課題となっています。',
+                  'link': '#ai-tech'
+              },
+              {
+                  'title': '持続可能な開発目標と企業の取り組み',
+                  'content': '国連の持続可能な開発目標（SDGs）達成に向けて、世界中の企業が積極的な取り組みを展開しています。再生可能エネルギーの導入、循環型経済の推進、社会的責任投資の拡大など、多岐にわたる施策が実施されています。特に日本企業では、カーボンニュートラル実現に向けた技術開発と投資が加速しており、グリーン技術分野での国際競争力強化が期待されています。消費者の環境意識の高まりも企業行動の変化を後押ししています。',
+                  'link': '#sustainability'
+              }
           ]
-          EOF
-          echo "✓ Created news data"
+          
+          # Process with AI
+          processed = []
+          for item in news_data:
+              summary = summarize_with_ai(item['content'])
+              processed.append({
+                  'title': item['title'],
+                  'summary': summary,
+                  'link': item['link'],
+                  'pubDate': datetime.now().isoformat(),
+                  'processed_at': datetime.now().isoformat()
+              })
+          
+          with open('news-data.json', 'w', encoding='utf-8') as f:
+              json.dump(processed, f, ensure_ascii=False, indent=2)
+          
+          print(f'✅ Processed {len(processed)} articles with AI')
+          "
           
       - name: Create HTML
         run: |
