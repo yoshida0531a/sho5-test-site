@@ -23,15 +23,14 @@ jobs:
           import os
           from datetime import datetime, timedelta
           
+          # Debug: Check if API key is available
+          api_key = os.environ.get('HF_API_KEY', '')
+          print(f"API Key available: {'Yes' if api_key else 'No'}")
+          print(f"API Key length: {len(api_key) if api_key else 0}")
+          
           # Hugging Face API settings
           HF_API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
-          HF_HEADERS = {"Authorization": f"Bearer {os.environ.get('HF_API_KEY', '')}"}
-          
-          # Sample RSS sources (add real RSS feeds)
-          RSS_SOURCES = [
-              "https://news.yahoo.co.jp/pickup/rss.xml",
-              "https://feeds.feedburner.com/hatena/b/hotentry",
-          ]
+          HF_HEADERS = {"Authorization": f"Bearer {api_key}"}
           
           def clean_text(text):
               # Remove HTML tags and clean text
@@ -41,18 +40,25 @@ jobs:
           
           def summarize_with_hf(text):
               try:
+                  print(f"Attempting to summarize text: {text[:50]}...")
                   response = requests.post(
                       HF_API_URL,
                       headers=HF_HEADERS,
                       json={"inputs": text, "parameters": {"max_length": 100, "min_length": 30}},
                       timeout=30
                   )
+                  print(f"API Response Status: {response.status_code}")
+                  
                   if response.status_code == 200:
                       result = response.json()
+                      print(f"API Response: {result}")
                       if isinstance(result, list) and len(result) > 0:
                           return result[0].get('summary_text', text[:100] + '...')
+                  else:
+                      print(f"API Error Response: {response.text}")
                   return text[:100] + '...'  # Fallback
-              except:
+              except Exception as e:
+                  print(f"Exception in summarize_with_hf: {e}")
                   return text[:100] + '...'  # Fallback
           
           # Sample news data (replace with actual RSS parsing)
@@ -105,8 +111,23 @@ jobs:
           # Generate news items HTML
           news_items = ""
           for article in news_data:
-              pub_date = datetime.fromisoformat(article["pubDate"].replace('Z', '+00:00'))
-              formatted_date = pub_date.strftime('%Y年%m月%d日')
+              try:
+                  # Handle datetime parsing more robustly
+                  pub_date_str = article["pubDate"]
+                  if 'T' in pub_date_str:
+                      # Remove microseconds and timezone info for simpler parsing
+                      pub_date_str = pub_date_str.split('.')[0]
+                      if '+' in pub_date_str:
+                          pub_date_str = pub_date_str.split('+')[0]
+                      if 'Z' in pub_date_str:
+                          pub_date_str = pub_date_str.replace('Z', '')
+                      pub_date = datetime.fromisoformat(pub_date_str)
+                  else:
+                      pub_date = datetime.now()
+                  formatted_date = pub_date.strftime('%Y年%m月%d日')
+              except Exception as e:
+                  print(f"Date parsing error for {article['pubDate']}: {e}")
+                  formatted_date = datetime.now().strftime('%Y年%m月%d日')
               
               news_items += f'''
           <div class="news-item">
@@ -191,12 +212,35 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          
+          # Check if there are any changes to commit
           git add news.html news-data.json
-          git diff --staged --quiet || git commit -m "Update news with AI summaries
           
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          # Pull latest changes to avoid conflicts
+          git pull --rebase origin main || echo "Rebase failed, continuing..."
+          
+          # Commit and push changes
+          git commit -m "Update news with AI summaries
+
           Auto-generated news summaries using AI
-          
+
           🤖 Generated with [Claude Code](https://claude.ai/code)
-          
+
           Co-Authored-By: Claude <noreply@anthropic.com>"
-          git push
+          
+          # Push changes with retry
+          for i in {1..3}; do
+            if git push; then
+              echo "Push successful"
+              break
+            else
+              echo "Push failed, retrying in 5 seconds..."
+              sleep 5
+              git pull --rebase origin main
+            fi
+          done
