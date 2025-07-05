@@ -1,8 +1,14 @@
 # RSS Feed URLs for News Sources
 # Format: URL (one per line)
 
-# NHK News
+# NHK News - 主要ニュース
 https://www3.nhk.or.jp/rss/news/cat0.xml
+
+# NHK News - 社会
+https://www3.nhk.or.jp/rss/news/cat1.xml
+
+# NHK News - 科学・文化
+https://www3.nhk.or.jp/rss/news/cat3.xml
 
 # Yahoo News - IT
 https://news.yahoo.co.jp/rss/topics/it.xml
@@ -10,11 +16,17 @@ https://news.yahoo.co.jp/rss/topics/it.xml
 # Yahoo News - Science
 https://news.yahoo.co.jp/rss/topics/science.xml
 
+# Yahoo News - 経済
+https://news.yahoo.co.jp/rss/topics/business.xml
+
 # Impress Watch - IT News
 https://www.watch.impress.co.jp/data/rss/1.0/ipw/feed.rdf
 
 # ITmedia News
 https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml
+
+# ITmedia Mobile
+https://rss.itmedia.co.jp/rss/2.0/mobile_bursts.xml
 
 # TechCrunch Japan
 https://feeds.feedburner.com/jp-techcrunch
@@ -24,3 +36,18 @@ https://gigazine.net/news/rss_2.0/
 
 # ASCII.jp
 https://ascii.jp/rss.xml
+
+# 4Gamer.net
+https://www.4gamer.net/rss/news.xml
+
+# PC Watch
+https://pc.watch.impress.co.jp/data/rss/1.0/pcw/feed.rdf
+
+# Internet Watch
+https://internet.watch.impress.co.jp/data/rss/1.0/iw/feed.rdf
+
+# マイナビニュース - IT
+https://news.mynavi.jp/rss/techplus
+
+# 日経 xTECH
+https://tech.nikkeibp.co.jp/rss/index.rdf

@@ -147,7 +147,7 @@ jobs:
           
           # 新しい記事を処理
           processed = []
-          for article in new_articles[:5]:  # 最大5記事まで処理
+          for article in new_articles[:10]:  # 最大10記事まで処理
               try:
                   summary = summarize_with_ai(article['content'])
                   article_hash = generate_article_hash(article['title'], article['content'])
@@ -165,9 +165,9 @@ jobs:
               except Exception as e:
                   print(f'⚠️ Processing error: {e}')
           
-          # 前回のデータと新しいデータを結合（最新20件まで保持）
+          # 前回のデータと新しいデータを結合（最新30件まで保持）
           all_articles = processed + previous_data
-          all_articles = all_articles[:20]
+          all_articles = all_articles[:30]
           
           with open('news-data.json', 'w', encoding='utf-8') as f:
               json.dump(all_articles, f, ensure_ascii=False, indent=2)
@@ -195,34 +195,190 @@ jobs:
             <title>Newsroom - Shogo Fun Site</title>
             <style>
               * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { font-family: sans-serif; background: white; color: black; }
-              header { text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }
-              .news-feed { width: calc(100% - 20px); max-width: 800px; margin: 0 auto; padding: 20px; }
-              .news-item { border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 15px; }
-              .news-item h3 { margin: 5px 0; font-size: 18px; }
-              .news-item h3 a { color: black; text-decoration: none; }
-              .news-item .date { margin: 5px 0; font-size: 12px; color: #666; }
-              .news-item .summary { margin: 10px 0; font-size: 14px; line-height: 1.5; }
-              footer { text-align: center; font-size: 12px; margin: 20px 0; }
+              body { 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: #333;
+                line-height: 1.6;
+                min-height: 100vh;
+              }
+              .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+              }
+              header { 
+                text-align: center; 
+                margin-bottom: 40px;
+                background: rgba(255, 255, 255, 0.95);
+                padding: 30px;
+                border-radius: 15px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+              }
+              .header-title {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: #2c3e50;
+                margin-bottom: 10px;
+              }
+              .header-subtitle {
+                font-size: 1.1rem;
+                color: #7f8c8d;
+                margin-bottom: 15px;
+              }
+              .last-update {
+                font-size: 0.9rem;
+                color: #95a5a6;
+                font-style: italic;
+              }
+              .news-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 25px;
+                margin-bottom: 40px;
+              }
+              .news-card {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 15px;
+                padding: 25px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+                transition: all 0.3s ease;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+              }
+              .news-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+              }
+              .news-title {
+                font-size: 1.3rem;
+                font-weight: 600;
+                margin-bottom: 15px;
+                line-height: 1.4;
+              }
+              .news-title a {
+                color: #2c3e50;
+                text-decoration: none;
+                transition: color 0.3s ease;
+              }
+              .news-title a:hover {
+                color: #3498db;
+              }
+              .news-meta {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                font-size: 0.85rem;
+                color: #7f8c8d;
+              }
+              .news-source {
+                background: #3498db;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 0.8rem;
+                font-weight: 500;
+              }
+              .news-date {
+                font-style: italic;
+              }
+              .news-summary {
+                font-size: 1rem;
+                line-height: 1.6;
+                color: #34495e;
+                margin-bottom: 15px;
+              }
+              .read-more {
+                display: inline-block;
+                color: #3498db;
+                text-decoration: none;
+                font-weight: 500;
+                font-size: 0.9rem;
+                transition: color 0.3s ease;
+              }
+              .read-more:hover {
+                color: #2980b9;
+              }
+              .stats {
+                text-align: center;
+                background: rgba(255, 255, 255, 0.95);
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(10px);
+                margin-bottom: 30px;
+              }
+              .stats-text {
+                font-size: 1rem;
+                color: #7f8c8d;
+              }
+              footer { 
+                text-align: center; 
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.9rem;
+                margin-top: 40px;
+              }
+              @media (max-width: 768px) {
+                .container { padding: 15px; }
+                .header-title { font-size: 2rem; }
+                .news-grid { grid-template-columns: 1fr; gap: 20px; }
+                .news-card { padding: 20px; }
+                .news-title { font-size: 1.2rem; }
+              }
             </style>
           </head>
           <body>
-            <header>Newsroom</header>
-            <section class=\"news-feed\">'''
+            <div class=\"container\">
+              <header>
+                <div class=\"header-title\">📰 Newsroom</div>
+                <div class=\"header-subtitle\">AI-powered news summaries updated daily</div>
+                <div class=\"last-update\">Last updated: ''' + datetime.now().strftime('%Y年%m月%d日 %H:%M') + '''</div>
+              </header>'''
+          
+          # Add stats section
+          total_articles = len(news_data)
+          html += f'''
+              <div class=\"stats\">
+                <div class=\"stats-text\">📊 現在 {total_articles} 件の記事を表示中 | 🤖 AI要約で効率的にニュースをチェック</div>
+              </div>
+              
+              <div class=\"news-grid\">'''
           
           # Add AI-generated news items
           for item in news_data:
-              pub_date = datetime.fromisoformat(item['pubDate']).strftime('%Y年%m月%d日')
+              pub_date = datetime.fromisoformat(item['pubDate']).strftime('%m月%d日 %H:%M')
+              source = item.get('source', 'RSS')
+              
+              # Truncate summary for better display
+              summary = item['summary']
+              if len(summary) > 150:
+                  summary = summary[:150] + '...'
+              
               html += f'''
-              <div class=\"news-item\">
-                <h3><a href=\"{item['link']}\">{item['title']}</a></h3>
-                <p class=\"date\">{pub_date}</p>
-                <p class=\"summary\">{item['summary']}</p>
-              </div>'''
+                <div class=\"news-card\">
+                  <div class=\"news-title\">
+                    <a href=\"{item['link']}\" target=\"_blank\">{item['title']}</a>
+                  </div>
+                  <div class=\"news-meta\">
+                    <span class=\"news-source\">{source}</span>
+                    <span class=\"news-date\">{pub_date}</span>
+                  </div>
+                  <div class=\"news-summary\">{summary}</div>
+                  <a href=\"{item['link']}\" target=\"_blank\" class=\"read-more\">続きを読む →</a>
+                </div>'''
           
           html += '''
-            </section>
-            <footer>Copyright © 2023-2025 Akira Yoshida.</footer>
+              </div>
+              
+              <footer>
+                <div>🚀 Powered by AI | Copyright © 2023-2025 Akira Yoshida</div>
+                <div style=\"margin-top: 10px; font-size: 0.8rem;\">
+                  Sources: NHK, Yahoo News, ITmedia, TechCrunch, GIGAZINE, ASCII.jp
+                </div>
+              </footer>
+            </div>
           </body>
           </html>'''
           
