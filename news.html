@@ -8,116 +8,29 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: sans-serif; background: white; color: black; }
     header { text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }
-    
-    .news-feed {
-      width: calc(100% - 20px);
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    
-    @media (max-width: 600px) {
-      .news-feed { width: 100%; padding: 10px; }
-    }
-    
-    #search {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    
-    .news-item {
-      border-bottom: 1px solid #ddd;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-    }
-    
+    .news-feed { width: calc(100% - 20px); max-width: 800px; margin: 0 auto; padding: 20px; }
+    .news-item { border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 15px; }
     .news-item h3 { margin: 5px 0; font-size: 18px; }
     .news-item h3 a { color: black; text-decoration: none; }
-    .news-item h3 a:hover { text-decoration: underline; }
-    .news-item p { margin: 5px 0; font-size: 14px; }
-    
-    #loadMore {
-      display: block;
-      margin: 20px auto;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      background: #eee;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      transition: background 0.3s;
-    }
-    
-    #loadMore:hover { background: #ddd; }
-    
+    .news-item .date { margin: 5px 0; font-size: 12px; color: #666; }
+    .news-item .summary { margin: 10px 0; font-size: 14px; line-height: 1.5; }
     footer { text-align: center; font-size: 12px; margin: 20px 0; }
   </style>
 </head>
 <body>
   <header>Newsroom</header>
-  
   <section class="news-feed">
-    <input type="text" id="search" placeholder="Search news...">
-    <div id="news-container"></div>
-    <button id="loadMore">Load More</button>
+    <div class="news-item">
+      <h3><a href="#">AI技術の最新動向</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">AI技術の発展が目覚ましく、自然言語処理分野での革新が続いています... (AI要約は準備中です)</p>
+    </div>
+    <div class="news-item">
+      <h3><a href="#">持続可能な開発</a></h3>
+      <p class="date">2025年07月05日</p>
+      <p class="summary">環境問題への関心が高まる中、持続可能な開発目標達成への取り組みが強化されています... (AI要約は準備中です)</p>
+    </div>
   </section>
-  
   <footer>Copyright © 2023-2025 Akira Yoshida.</footer>
-  
-  <script>
-    const sampleNews = [
-      {
-        title: "野球チーム、春季大会で優勝を果たす",
-        pubDate: new Date("2025-01-15"),
-        description: "地域の春季野球大会において、見事優勝を勝ち取りました。チーム一丸となって戦い抜いた結果です。"
-      },
-      {
-        title: "新しいメンバーが加入しました",
-        pubDate: new Date("2025-01-10"),
-        description: "経験豊富な選手たちが新たにチームに加わり、さらなる飛躍を目指します。"
-      },
-      {
-        title: "練習試合の結果報告",
-        pubDate: new Date("2025-01-05"),
-        description: "他チームとの練習試合を行い、多くの課題と成果を確認することができました。"
-      }
-    ];
-    
-    let allArticles = sampleNews;
-    let initialArticles = sampleNews;
-    let isAllDisplayed = false;
-    
-    function renderNews() {
-      const searchQuery = document.getElementById('search').value.trim().toLowerCase();
-      let articlesToDisplay = searchQuery
-        ? allArticles.filter(article => {
-            const text = (article.title + " " + article.description).toLowerCase();
-            return text.includes(searchQuery);
-          })
-        : (isAllDisplayed ? allArticles : initialArticles);
-      
-      document.getElementById('news-container').innerHTML = articlesToDisplay.map(article => `
-        <div class="news-item">
-          <h3><a href="#" target="_blank">${article.title}</a></h3>
-          <p>${article.pubDate.toLocaleString()}</p>
-          <p>${article.description}</p>
-        </div>
-      `).join("");
-    }
-    
-    document.getElementById('loadMore').addEventListener('click', () => {
-      isAllDisplayed = true;
-      renderNews();
-      document.getElementById('loadMore').style.display = 'none';
-    });
-    
-    document.getElementById('search').addEventListener('input', renderNews);
-    
-    renderNews();
-  </script>
 </body>
 </html>
