@@ -1,45 +1,33 @@
-# RSS Feed URLs for College Baseball News
+# RSS Feed URLs for News Sources
 # Format: URL (one per line)
-# Focus: 谷端選手関連ニュース（日大、星稜など）
+# Based on shogobot repository configuration
 
-# Yahoo News - スポーツ全般
-https://news.yahoo.co.jp/rss/topics/sports.xml
+# Yahoo News - IT
+https://news.yahoo.co.jp/rss/topics/it.xml
 
-# Yahoo News - 野球
-https://news.yahoo.co.jp/rss/topics/baseball.xml
+# Yahoo News - Science  
+https://news.yahoo.co.jp/rss/topics/science.xml
 
-# スポーツニッポン - 野球
-https://www.sponichi.co.jp/baseball/news/rss.xml
+# Yahoo News - Business
+https://news.yahoo.co.jp/rss/topics/business.xml
 
-# 日刊スポーツ - 野球
-https://www.nikkansports.com/rss/baseball.xml
+# ITmedia News
+https://rss.itmedia.co.jp/rss/2.0/news_bursts.xml
 
-# サンケイスポーツ - 野球
-https://www.sanspo.com/rss/sports/baseball.xml
+# TechCrunch Japan
+https://feeds.feedburner.com/jp-techcrunch
 
-# 朝日新聞デジタル - スポーツ
-https://www.asahi.com/rss/sports.xml
+# GIGAZINE
+https://gigazine.net/news/rss_2.0/
 
-# 毎日新聞 - スポーツ
-https://mainichi.jp/rss/etc/sports.rss
+# ASCII.jp
+https://ascii.jp/rss.xml
 
-# 読売新聞 - スポーツ
-https://www.yomiuri.co.jp/rss/sports.xml
+# PC Watch
+https://pc.watch.impress.co.jp/data/rss/1.0/pcw/feed.rdf
 
-# NHK News - スポーツ
-https://www3.nhk.or.jp/rss/news/cat7.xml
+# Internet Watch  
+https://internet.watch.impress.co.jp/data/rss/1.0/iw/feed.rdf
 
-# 共同通信 - スポーツ
-https://nordot.app/rss/sports
-
-# 時事通信 - スポーツ
-https://www.jiji.com/rss/sports.xml
-
-# Full-Count（野球専門）
-https://full-count.jp/feed/
-
-# 高校野球ドットコム
-https://www.hb-nippon.com/rss.xml
-
-# 大学野球情報サイト
-https://www.student-baseball.or.jp/rss.xml
+# Impress Watch
+https://www.watch.impress.co.jp/data/rss/1.0/ipw/feed.rdf

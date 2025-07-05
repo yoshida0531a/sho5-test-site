@@ -26,49 +26,37 @@ jobs:
           api_key = os.environ.get('HF_API_KEY', '')
           print(f'🔑 API Key: {\"✅\" if api_key else \"❌ Missing\"}')
           
-          def summarize_with_ai(text, is_baseball=True):
-              # 野球専用のプロンプトを作成
-              baseball_context = '野球関連のニュースを要約してください。' if is_baseball else ''
-              
+          def summarize_with_ai(text):
               if not api_key:
                   sentences = text.split('。')
                   if len(sentences) >= 2:
                       return sentences[0] + '。' + sentences[1][:50] + '。' if len(sentences[1]) > 50 else sentences[0] + '。' + sentences[1] + '。'
                   return text[:200] + '...'
               try:
-                  # 日本語対応のmT5モデルを使用（野球コンテキスト付き）
-                  prompt = f'{baseball_context} 要約: {text[:600]}'
+                  # 日本語対応のmT5モデルを使用
                   response = requests.post(
                       'https://api-inference.huggingface.co/models/megagonlabs/t5-base-japanese-web-8k',
                       headers={'Authorization': f'Bearer {api_key}'},
-                      json={'inputs': prompt, 'parameters': {'max_length': 250, 'min_length': 100}},
+                      json={'inputs': f'要約: {text[:500]}', 'parameters': {'max_length': 200, 'min_length': 80}},
                       timeout=45
                   )
                   if response.status_code == 200:
                       result = response.json()
                       summary = result[0].get('generated_text', '').strip()
-                      if summary and len(summary) > 30:
+                      if summary and len(summary) > 20:
                           return summary
                   print(f'⚠️ API Error: {response.status_code}')
-                  # APIエラーの場合は野球関連キーワードを保持して要約
+                  # APIエラーの場合は日本語でシンプルな要約を作成
                   sentences = text.split('。')
-                  filtered_sentences = []
-                  for sentence in sentences:
-                      if '谷端' in sentence or '野球' in sentence or '試合' in sentence:
-                          filtered_sentences.append(sentence)
-                      elif len(filtered_sentences) < 2:
-                          filtered_sentences.append(sentence)
-                  
-                  if len(filtered_sentences) >= 2:
-                      return filtered_sentences[0] + '。' + (filtered_sentences[1][:60] + '。' if len(filtered_sentences[1]) > 60 else filtered_sentences[1] + '。')
+                  if len(sentences) >= 2:
+                      return sentences[0] + '。' + sentences[1][:50] + '。' if len(sentences[1]) > 50 else sentences[0] + '。' + sentences[1] + '。'
                   return text[:200] + '...'
               except Exception as e:
                   print(f'⚠️ AI Error: {e}')
-                  # エラーの場合は野球キーワードを優先して要約
+                  # エラーの場合は日本語でシンプルな要約を作成
                   sentences = text.split('。')
-                  for sentence in sentences:
-                      if '谷端' in sentence and len(sentence) > 20:
-                          return sentence + '。'
+                  if len(sentences) >= 2:
+                      return sentences[0] + '。' + sentences[1][:50] + '。' if len(sentences[1]) > 50 else sentences[0] + '。' + sentences[1] + '。'
                   return text[:200] + '...'
           
           def load_previous_data():
@@ -79,23 +67,8 @@ jobs:
               except:
                   return []
           
-          def check_tanibata_keywords(text):
-              '''谷端選手関連のキーワードをチェック'''
-              keywords = [
-                  '谷端　日大', '谷端　大学', '谷端　星稜',
-                  '谷端 日大', '谷端 大学', '谷端 星稜',
-                  '谷端日大', '谷端大学', '谷端星稜',
-                  '谷端　巨人', '谷端　ジャイアンツ',
-                  '谷端 巨人', '谷端 ジャイアンツ'
-              ]
-              
-              for keyword in keywords:
-                  if keyword in text:
-                      return True, keyword
-              return False, None
-          
           def fetch_rss_feeds():
-              '''RSS フィードから記事を取得（谷端選手関連のみ）'''
+              '''RSS フィードから記事を取得'''
               feeds = []
               try:
                   with open('news-updater/feeds.txt', 'r', encoding='utf-8') as f:
@@ -111,7 +84,7 @@ jobs:
               for feed_url in feeds:
                   try:
                       print(f'📡 Fetching RSS: {feed_url}')
-                      response = requests.get(feed_url, timeout=15)
+                      response = requests.get(feed_url, timeout=10)
                       response.raise_for_status()
                       
                       root = ET.fromstring(response.content)
@@ -124,35 +97,26 @@ jobs:
                           pub_date = item.find('pubDate')
                           
                           if title is not None and description is not None:
-                              title_text = title.text or ''
-                              desc_text = re.sub(r'<[^>]+>', '', description.text or '')
-                              full_text = title_text + ' ' + desc_text
-                              
-                              # 谷端選手関連のキーワードチェック
-                              has_keyword, found_keyword = check_tanibata_keywords(full_text)
-                              if not has_keyword:
-                                  continue
-                              
-                              # 48時間以内の記事のみ取得（野球ニュースは更新頻度が低いため）
+                              # 24時間以内の記事のみ取得
                               if pub_date is not None:
                                   try:
                                       from email.utils import parsedate_to_datetime
                                       article_date = parsedate_to_datetime(pub_date.text)
-                                      if article_date < datetime.now() - timedelta(days=2):
+                                      if article_date < datetime.now() - timedelta(days=1):
                                           continue
                                   except:
                                       pass
                               
+                              # HTMLタグを除去
+                              desc_text = re.sub(r'<[^>]+>', '', description.text or '')
+                              
                               articles.append({
-                                  'title': title_text,
-                                  'content': desc_text[:1000],
+                                  'title': title.text or '',
+                                  'content': desc_text[:800],
                                   'link': link.text or '' if link is not None else '',
-                                  'source': 'Baseball RSS',
-                                  'feed_url': feed_url,
-                                  'keyword': found_keyword,
-                                  'category': '大学野球'
+                                  'source': 'RSS',
+                                  'feed_url': feed_url
                               })
-                              print(f'⚾ Found 谷端 article: {title_text[:50]}... (keyword: {found_keyword})')
                   except Exception as e:
                       print(f'⚠️ RSS Error {feed_url}: {e}')
               
@@ -183,9 +147,9 @@ jobs:
           
           # 新しい記事を処理
           processed = []
-          for article in new_articles[:15]:  # 谷端関連記事は貴重なので最大15記事まで処理
+          for article in new_articles[:5]:  # 最大5記事まで処理
               try:
-                  summary = summarize_with_ai(article['content'], is_baseball=True)
+                  summary = summarize_with_ai(article['content'])
                   article_hash = generate_article_hash(article['title'], article['content'])
                   
                   processed.append({
@@ -193,19 +157,17 @@ jobs:
                       'summary': summary,
                       'link': article['link'],
                       'source': article['source'],
-                      'category': article['category'],
-                      'keyword': article['keyword'],
                       'pubDate': datetime.now().isoformat(),
                       'processed_at': datetime.now().isoformat(),
                       'hash': article_hash
                   })
-                  print(f'⚾ Processed 谷端 article: {article[\"title\"][:50]}... (keyword: {article[\"keyword\"]})')
+                  print(f'✅ Processed: {article[\"title\"][:50]}...')
               except Exception as e:
                   print(f'⚠️ Processing error: {e}')
           
-          # 前回のデータと新しいデータを結合（最新50件まで保持、谷端関連記事なので多めに保存）
+          # 前回のデータと新しいデータを結合（最新20件まで保持）
           all_articles = processed + previous_data
-          all_articles = all_articles[:50]
+          all_articles = all_articles[:20]
           
           with open('news-data.json', 'w', encoding='utf-8') as f:
               json.dump(all_articles, f, ensure_ascii=False, indent=2)
@@ -230,257 +192,38 @@ jobs:
           <head>
             <meta charset=\"UTF-8\">
             <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
-            <title>谷端選手ニュースルーム - 大学野球特化</title>
+            <title>Newsroom - Shogo Fun Site</title>
             <style>
               * { margin: 0; padding: 0; box-sizing: border-box; }
-              body { 
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-                background: linear-gradient(135deg, #2E8B57 0%, #228B22 50%, #006400 100%);
-                color: #333;
-                line-height: 1.6;
-                min-height: 100vh;
-              }
-              .container {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 20px;
-              }
-              header { 
-                text-align: center; 
-                margin-bottom: 40px;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 30px;
-                border-radius: 15px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-                backdrop-filter: blur(10px);
-                border: 3px solid #228B22;
-              }
-              .header-title {
-                font-size: 2.5rem;
-                font-weight: 700;
-                color: #006400;
-                margin-bottom: 10px;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-              }
-              .header-subtitle {
-                font-size: 1.2rem;
-                color: #2E8B57;
-                margin-bottom: 15px;
-                font-weight: 600;
-              }
-              .player-info {
-                background: #228B22;
-                color: white;
-                padding: 15px;
-                border-radius: 10px;
-                margin: 15px 0;
-                font-size: 1rem;
-                font-weight: 500;
-              }
-              .last-update {
-                font-size: 0.9rem;
-                color: #666;
-                font-style: italic;
-              }
-              .news-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-                gap: 25px;
-                margin-bottom: 40px;
-              }
-              .news-card {
-                background: rgba(255, 255, 255, 0.95);
-                border-radius: 15px;
-                padding: 25px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-                backdrop-filter: blur(10px);
-                transition: all 0.3s ease;
-                border-left: 5px solid #228B22;
-              }
-              .news-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-                border-left: 5px solid #006400;
-              }
-              .news-title {
-                font-size: 1.3rem;
-                font-weight: 600;
-                margin-bottom: 15px;
-                line-height: 1.4;
-              }
-              .news-title a {
-                color: #006400;
-                text-decoration: none;
-                transition: color 0.3s ease;
-              }
-              .news-title a:hover {
-                color: #228B22;
-              }
-              .news-meta {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 15px;
-                font-size: 0.85rem;
-                color: #7f8c8d;
-              }
-              .news-source {
-                background: #228B22;
-                color: white;
-                padding: 6px 12px;
-                border-radius: 20px;
-                font-size: 0.8rem;
-                font-weight: 500;
-              }
-              .keyword-badge {
-                background: #FFD700;
-                color: #006400;
-                padding: 4px 8px;
-                border-radius: 15px;
-                font-size: 0.75rem;
-                font-weight: 600;
-                margin-left: 10px;
-              }
-              .news-date {
-                font-style: italic;
-                color: #666;
-              }
-              .news-summary {
-                font-size: 1rem;
-                line-height: 1.6;
-                color: #333;
-                margin-bottom: 15px;
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 8px;
-                border-left: 4px solid #228B22;
-              }
-              .read-more {
-                display: inline-block;
-                background: #228B22;
-                color: white;
-                padding: 8px 16px;
-                border-radius: 20px;
-                text-decoration: none;
-                font-weight: 500;
-                font-size: 0.9rem;
-                transition: all 0.3s ease;
-              }
-              .read-more:hover {
-                background: #006400;
-                transform: scale(1.05);
-              }
-              .stats {
-                text-align: center;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 20px;
-                border-radius: 15px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-                backdrop-filter: blur(10px);
-                margin-bottom: 30px;
-                border: 2px solid #228B22;
-              }
-              .stats-text {
-                font-size: 1.1rem;
-                color: #006400;
-                font-weight: 600;
-              }
-              .no-news {
-                text-align: center;
-                background: rgba(255, 255, 255, 0.95);
-                padding: 40px;
-                border-radius: 15px;
-                color: #666;
-                font-size: 1.1rem;
-              }
-              footer { 
-                text-align: center; 
-                color: rgba(255, 255, 255, 0.9);
-                font-size: 0.9rem;
-                margin-top: 40px;
-                background: rgba(0, 0, 0, 0.2);
-                padding: 20px;
-                border-radius: 10px;
-              }
-              @media (max-width: 768px) {
-                .container { padding: 15px; }
-                .header-title { font-size: 2rem; }
-                .news-grid { grid-template-columns: 1fr; gap: 20px; }
-                .news-card { padding: 20px; }
-                .news-title { font-size: 1.2rem; }
-              }
+              body { font-family: sans-serif; background: white; color: black; }
+              header { text-align: center; font-size: 28px; font-weight: bold; margin: 20px 0; }
+              .news-feed { width: calc(100% - 20px); max-width: 800px; margin: 0 auto; padding: 20px; }
+              .news-item { border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 15px; }
+              .news-item h3 { margin: 5px 0; font-size: 18px; }
+              .news-item h3 a { color: black; text-decoration: none; }
+              .news-item .date { margin: 5px 0; font-size: 12px; color: #666; }
+              .news-item .summary { margin: 10px 0; font-size: 14px; line-height: 1.5; }
+              footer { text-align: center; font-size: 12px; margin: 20px 0; }
             </style>
           </head>
           <body>
-            <div class=\"container\">
-              <header>
-                <div class=\"header-title\">⚾ 谷端選手ニュースルーム</div>
-                <div class=\"header-subtitle\">大学野球・プロ野球ニュース AI要約</div>
-                <div class=\"player-info\">
-                  🏟️ 日本大学 → 読売ジャイアンツ | 🏫 星稜高校出身
-                </div>
-                <div class=\"last-update\">Last updated: ''' + datetime.now().strftime('%Y年%m月%d日 %H:%M') + '''</div>
-              </header>'''
+            <header>Newsroom</header>
+            <section class=\"news-feed\">'''
           
-          # Add stats section
-          total_articles = len(news_data)
-          
-          if total_articles == 0:
-              html += '''
-                  <div class=\"no-news\">
-                    <h2>⚾ 谷端選手関連のニュースを検索中...</h2>
-                    <p style=\"margin-top: 15px;\">現在、谷端選手に関する新しいニュースはありません。</p>
-                    <p style=\"margin-top: 10px;\">毎朝8時に自動更新されます。</p>
-                  </div>'''
-          else:
+          # Add AI-generated news items
+          for item in news_data:
+              pub_date = datetime.fromisoformat(item['pubDate']).strftime('%Y年%m月%d日')
+              
               html += f'''
-                  <div class=\"stats\">
-                    <div class=\"stats-text\">⚾ 谷端選手関連ニュース {total_articles} 件 | 🤖 AI要約で野球情報をキャッチアップ</div>
-                  </div>
-                  
-                  <div class=\"news-grid\">'''
-              
-              # Add AI-generated news items
-              for item in news_data:
-                  pub_date = datetime.fromisoformat(item['pubDate']).strftime('%m月%d日 %H:%M')
-                  source = item.get('source', 'Baseball RSS')
-                  keyword = item.get('keyword', '谷端')
-                  category = item.get('category', '野球')
-                  
-                  # Truncate summary for better display
-                  summary = item['summary']
-                  if len(summary) > 200:
-                      summary = summary[:200] + '...'
-                  
-                  html += f'''
-                    <div class=\"news-card\">
-                      <div class=\"news-title\">
-                        <a href=\"{item['link']}\" target=\"_blank\">{item['title']}</a>
-                      </div>
-                      <div class=\"news-meta\">
-                        <div>
-                          <span class=\"news-source\">{source}</span>
-                          <span class=\"keyword-badge\">{keyword}</span>
-                        </div>
-                        <span class=\"news-date\">{pub_date}</span>
-                      </div>
-                      <div class=\"news-summary\">{summary}</div>
-                      <a href=\"{item['link']}\" target=\"_blank\" class=\"read-more\">📰 全文を読む</a>
-                    </div>'''
-              
-              html += '''</div>'''
+              <div class=\"news-item\">
+                <h3><a href=\"{item['link']}\">{item['title']}</a></h3>
+                <p class=\"date\">{pub_date}</p>
+                <p class=\"summary\">{item['summary']}</p>
+              </div>'''
           
           html += '''
-              <footer>
-                <div>⚾ 谷端選手専用ニュースサイト | 🤖 AI-Powered Baseball News</div>
-                <div style=\"margin-top: 10px; font-size: 0.8rem;\">
-                  Sources: スポニチ、日刊スポーツ、Yahoo Sports、NHK、共同通信 他
-                </div>
-                <div style=\"margin-top: 5px; font-size: 0.8rem;\">
-                  Keywords: 谷端 + 日大/大学/星稜/巨人/ジャイアンツ
-                </div>
-              </footer>
-            </div>
+            </section>
+            <footer>Copyright © 2023-2025 Akira Yoshida.</footer>
           </body>
           </html>'''
           
