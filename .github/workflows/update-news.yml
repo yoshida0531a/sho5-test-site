@@ -28,15 +28,20 @@ jobs:
               if not api_key:
                   return text[:200] + '...'
               try:
+                  # 日本語対応のT5モデルを使用
                   response = requests.post(
-                      'https://api-inference.huggingface.co/models/facebook/bart-large-cnn',
+                      'https://api-inference.huggingface.co/models/sonoisa/t5-base-japanese-summarization',
                       headers={'Authorization': f'Bearer {api_key}'},
-                      json={'inputs': text[:800], 'parameters': {'max_length': 200, 'min_length': 100}},
+                      json={'inputs': text[:600], 'parameters': {'max_length': 150, 'min_length': 50}},
                       timeout=30
                   )
                   if response.status_code == 200:
                       result = response.json()
-                      return result[0].get('summary_text', text[:200] + '...')
+                      summary = result[0].get('summary_text', '').strip()
+                      if summary:
+                          return summary
+                      else:
+                          return text[:200] + '...'
                   print(f'⚠️ API Error: {response.status_code}')
                   return text[:200] + '...'
               except Exception as e:
