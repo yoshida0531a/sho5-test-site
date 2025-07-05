@@ -23,6 +23,9 @@ jobs:
           print(f"API Key: {'✓' if api_key else '✗'}")
           
           def summarize(text):
+              if not api_key:
+                  print("⚠️ API key not found, using fallback summary")
+                  return text[:100] + "... (AI要約は準備中です)"
               try:
                   response = requests.post(
                       "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
@@ -34,10 +37,10 @@ jobs:
                       result = response.json()
                       return result[0].get('summary_text', text[:100] + '...')
                   print(f"API Error: {response.status_code}")
-                  return text[:100] + '...'
+                  return text[:100] + '... (AI要約エラー)'
               except Exception as e:
                   print(f"Error: {e}")
-                  return text[:100] + '...'
+                  return text[:100] + '... (AI要約エラー)'
           
           news = [
               {"title": "AI技術の最新動向", "content": "AI技術の発展が目覚ましく、自然言語処理分野での革新が続いています。多くの企業がAIサービスを展開中。", "link": "#"},
